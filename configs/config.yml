@@ -1,0 +1,16 @@
+server:
+  host: epp2026.ote.nixiregistry.in
+  port: 700
+
+authentication:
+  username: csc_egov_in_a
+  password: 63053d90c4cdb9
+
+tls:
+  cert_file: epp-ote.pem
+  key_file: csc_egov_in.key
+
+timeout:
+  connect: 10
+  read: 30
+  write: 30
