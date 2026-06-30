@@ -34,6 +34,7 @@ type DomainCheckResult struct {
 
 type DomainInfoRequest struct {
 	Domain string
+	Hosts  string
 }
 
 type DomainInfoResponse struct {
@@ -49,13 +50,102 @@ type DomainInfoResult struct {
 	ROID       string
 	Registrant string
 	Registrar  string
+	CreatedBy  string
+	UpdatedBy  string
 
-	Statuses    []string
-	NameServers []string
+	Statuses       []string
+	StatusDetails  []DomainStatus
+	Contacts       []DomainContact
+	NameServers    []string
+	NameServerInfo []DomainNameServer
+	AuthInfo       string
+	AuthInfoROID   string
+	RGPStatuses    []string
+	DNSSEC         DomainDNSSECInfo
+	Fee            DomainFeeInfo
+	Launch         DomainLaunchInfo
+	IDN            DomainIDNInfo
 
-	CreatedDate *time.Time
-	UpdatedDate *time.Time
-	ExpiryDate  *time.Time
+	CreatedDate  *time.Time
+	UpdatedDate  *time.Time
+	ExpiryDate   *time.Time
+	TransferDate *time.Time
+}
+
+type DomainContact struct {
+	Type string
+	ID   string
+}
+
+type DomainStatus struct {
+	Status string
+	Lang   string
+	Text   string
+}
+
+type DomainNameServer struct {
+	HostName  string
+	Addresses []DomainHostAddress
+}
+
+type DomainHostAddress struct {
+	IP      string
+	Version string
+}
+
+type DomainDNSSECInfo struct {
+	MaxSigLife int
+	DSData     []DomainDSData
+	KeyData    []DomainKeyData
+}
+
+type DomainDSData struct {
+	KeyTag     int
+	Algorithm  int
+	DigestType int
+	Digest     string
+	KeyData    *DomainKeyData
+}
+
+type DomainKeyData struct {
+	Flags     int
+	Protocol  int
+	Algorithm int
+	PublicKey string
+}
+
+type DomainFeeInfo struct {
+	Currency    string
+	Commands    []DomainFeeCommand
+	Fees        []DomainFeeAmount
+	Credits     []DomainFeeAmount
+	Balance     string
+	CreditLimit string
+}
+
+type DomainFeeCommand struct {
+	Name     string
+	Phase    string
+	Subphase string
+}
+
+type DomainFeeAmount struct {
+	Amount      string
+	Description string
+	Refundable  string
+	GracePeriod string
+}
+
+type DomainLaunchInfo struct {
+	Phase         string
+	ApplicationID string
+	Status        string
+	StatusText    string
+	StatusLang    string
+}
+
+type DomainIDNInfo struct {
+	Table string
 }
 
 //
@@ -68,6 +158,7 @@ type DomainCreateRequest struct {
 	Domain string
 
 	Period int
+	Unit   string
 
 	Registrant string
 
@@ -75,7 +166,13 @@ type DomainCreateRequest struct {
 	TechContact    string
 	BillingContact string
 
-	NameServers []string
+	AdminContacts   []string
+	TechContacts    []string
+	BillingContacts []string
+	Contacts        []DomainContact
+
+	NameServers    []string
+	NameServerInfo []DomainNameServer
 
 	AuthInfo string
 }
@@ -88,6 +185,9 @@ type DomainCreateResponse struct {
 
 type DomainCreateResult struct {
 	Domain string
+
+	CreatedDate time.Time
+	ExpiryDate  time.Time
 }
 
 //

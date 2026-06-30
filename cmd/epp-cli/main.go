@@ -6,12 +6,12 @@ import (
 
 	"github.com/hariom-pal/go-epp/epp"
 	"github.com/hariom-pal/go-epp/internal/config"
-	"github.com/hariom-pal/go-epp/types"
 )
 
 func main() {
+	options := parseOptions()
 
-	cfg, err := config.Load("configs/config.yaml")
+	cfg, err := config.Load(options.ConfigPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,43 +40,20 @@ func main() {
 
 	fmt.Println("Login Successful")
 
-	// --------------------------------------------------
-	// DOMAIN CHECK
-	// --------------------------------------------------
-
-	req := types.DomainCheckRequest{
-		Domains: []string{
-			"google.in",
-			"भारत.भारत",
-		},
-	}
-
-	resp, err := client.DomainCheck(req)
-	if err != nil {
+	if err := runDomainCheck(client, options.CheckDomains); err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println()
-	fmt.Println("========== DOMAIN CHECK ==========")
+	if err := runContactCheck(client, options.ContactCheckIDs); err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Printf("Result Code : %d\n", resp.ResultCode)
-	fmt.Printf("Result Msg  : %s\n", resp.ResultMsg)
-	fmt.Printf("ClientTRID  : %s\n", resp.ClientTRID)
-	fmt.Printf("ServerTRID  : %s\n", resp.ServerTRID)
+	if err := runDomainCreate(client, options); err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Println("----------------------------------")
-
-	for _, result := range resp.Results {
-
-		fmt.Printf("Domain      : %s\n", result.Domain)
-		fmt.Printf("ASCII       : %s\n", result.ASCII)
-		fmt.Printf("Available   : %t\n", result.Available)
-
-		if result.Reason != "" {
-			fmt.Printf("Reason      : %s\n", result.Reason)
-		}
-
-		fmt.Println("----------------------------------")
+	if err := runDomainInfo(client, options.InfoDomain, options.InfoHosts); err != nil {
+		log.Fatal(err)
 	}
 
 	// --------------------------------------------------
