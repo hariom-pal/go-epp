@@ -34,7 +34,7 @@ func runContactCheck(
 	fmt.Println("-----------------------------------")
 
 	for _, result := range resp.Results {
-		fmt.Printf("Contact ID  : %s\n", result.ID)
+		fmt.Printf("Contact ID  : %s\n", result.ContactID)
 		fmt.Printf("Available   : %t\n", result.Available)
 
 		if result.Reason != "" {

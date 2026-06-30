@@ -17,7 +17,8 @@ type ContactCheckResponse struct {
 }
 
 type ContactCheckResult struct {
-	ID string
+	ContactID string
+	ID        string
 
 	Available bool
 	Reason    string

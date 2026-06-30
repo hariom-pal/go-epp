@@ -94,6 +94,7 @@ func (c *Client) ContactCheck(
 
 	for _, cd := range response.Response.ResData.CheckData.CD {
 		resp.Results = append(resp.Results, types.ContactCheckResult{
+			ContactID: cd.ID.Value,
 			ID:        cd.ID.Value,
 			Available: cd.ID.Available == 1,
 			Reason:    cd.Reason,
