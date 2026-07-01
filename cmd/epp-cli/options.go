@@ -9,6 +9,9 @@ type cliOptions struct {
 
 	HostCheckNames []string
 	HostInfoName   string
+	HostCreateName string
+	HostCreateIPv4 []string
+	HostCreateIPv6 []string
 
 	ContactCheckIDs []string
 	ContactInfoID   string
@@ -63,6 +66,8 @@ func parseOptions() cliOptions {
 	var createBillingContacts stringList
 	var createNameServers stringList
 	var hostCheckNames stringList
+	var hostCreateIPv4 stringList
+	var hostCreateIPv6 stringList
 	var contactCheckIDs stringList
 	var contactCreateStreets stringList
 	var contactCreateLocStreets stringList
@@ -71,6 +76,7 @@ func parseOptions() cliOptions {
 
 	flag.StringVar(&options.ConfigPath, "config", "configs/config.yaml", "path to config YAML")
 	flag.StringVar(&options.CheckDomains, "check", "", "comma-separated domains for domain check")
+	flag.StringVar(&options.HostCreateName, "host-create", "", "host name for host create")
 	flag.StringVar(&options.HostInfoName, "host-info", "", "host name for host info")
 	flag.StringVar(&options.ContactInfoID, "contact-info", "", "contact ID for contact info")
 	flag.StringVar(&options.ContactCreateID, "contact-create", "", "contact ID for contact create")
@@ -107,6 +113,8 @@ func parseOptions() cliOptions {
 	flag.Var(&createBillingContacts, "billing", "billing contact for domain create; may be repeated")
 	flag.Var(&createNameServers, "ns", "hostObj name server for domain create; may be repeated")
 	flag.Var(&hostCheckNames, "host-check", "host name for host check; may be repeated")
+	flag.Var(&hostCreateIPv4, "ipv4", "IPv4 address for host create; may be repeated")
+	flag.Var(&hostCreateIPv6, "ipv6", "IPv6 address for host create; may be repeated")
 	flag.Var(&contactCheckIDs, "contact-check", "contact ID for contact check; may be repeated")
 	flag.Var(&contactCreateStreets, "contact-street", "international contact street for contact create; may be repeated")
 	flag.Var(&contactCreateLocStreets, "contact-loc-street", "localized contact street for contact create; may be repeated")
@@ -115,6 +123,8 @@ func parseOptions() cliOptions {
 	flag.Parse()
 
 	options.HostCheckNames = []string(hostCheckNames)
+	options.HostCreateIPv4 = []string(hostCreateIPv4)
+	options.HostCreateIPv6 = []string(hostCreateIPv6)
 	options.ContactCheckIDs = []string(contactCheckIDs)
 	options.ContactCreateStreets = []string(contactCreateStreets)
 	options.ContactCreateLocStreets = []string(contactCreateLocStreets)

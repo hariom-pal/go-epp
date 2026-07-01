@@ -52,6 +52,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runHostCreate(client, options); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runContactCheck(client, options.ContactCheckIDs); err != nil {
 		log.Fatal(err)
 	}

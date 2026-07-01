@@ -58,3 +58,27 @@ type HostInfo struct {
 	UpdatedDate  time.Time
 	TransferDate time.Time
 }
+
+//
+// ============================================================
+// HOST CREATE
+// ============================================================
+//
+
+type HostCreateRequest struct {
+	HostName string
+
+	Addresses []HostAddress
+}
+
+type HostCreateResponse struct {
+	Response
+
+	Result HostCreateResult
+}
+
+type HostCreateResult struct {
+	HostName string
+
+	CreatedDate time.Time
+}
