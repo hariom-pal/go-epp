@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/hariom-pal/go-epp/extensions/fee"
+	"github.com/hariom-pal/go-epp/extensions/launch"
 	"github.com/hariom-pal/go-epp/extensions/rgp"
 	"github.com/hariom-pal/go-epp/extensions/secdns"
 )
@@ -48,6 +49,8 @@ type DomainCheckResult struct {
 type DomainInfoRequest struct {
 	Domain string
 	Hosts  string
+
+	Launch *launch.InfoRequest
 }
 
 // DomainInfoResponse contains the response for a domain info command.
@@ -80,6 +83,7 @@ type DomainInfoResult struct {
 	DNSSEC         DomainDNSSECInfo
 	SecDNS         secdns.InfoData
 	Fee            DomainFeeInfo
+	LaunchData     launch.InfoData
 	Launch         DomainLaunchInfo
 	IDN            DomainIDNInfo
 
@@ -209,6 +213,8 @@ type DomainCreateRequest struct {
 	Fee *fee.TransformRequest
 
 	SecDNS *secdns.CreateRequest
+
+	Launch *launch.CreateRequest
 }
 
 // DomainCreateResponse contains the response for a domain create command.
@@ -226,6 +232,8 @@ type DomainCreateResult struct {
 	ExpiryDate  time.Time
 
 	Fee fee.TransformData
+
+	Launch launch.IDData
 }
 
 //
@@ -268,6 +276,8 @@ type DomainUpdateRequest struct {
 	SecDNS *secdns.UpdateRequest
 
 	RGP *rgp.UpdateRequest
+
+	Launch *launch.UpdateRequest
 }
 
 // DomainUpdateResponse contains the response for a domain update command.
@@ -293,6 +303,8 @@ type DomainUpdateResult struct {
 type DomainDeleteRequest struct {
 	Domain     string
 	DomainName string
+
+	Launch *launch.DeleteRequest
 }
 
 // DomainDeleteResponse contains the response for a domain delete command.

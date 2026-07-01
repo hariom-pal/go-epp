@@ -11,7 +11,7 @@ The project is under active development and is preparing for a v1.0 architecture
 - Domain check, info, create, update, renew, transfer, and delete
 - Contact check, info, create, update, and delete
 - Host check, info, create, update, and delete
-- Reusable fee, secDNS, and RGP extension packages
+- Reusable fee, secDNS, RGP, and launch extension packages
 - Unicode domain and host conversion through IDNA/Punycode
 - Structured response types with result codes and transaction IDs
 - Structured `epp.Error` values for registry errors
@@ -27,9 +27,10 @@ The project is under active development and is preparing for a v1.0 architecture
 - RFC5734: TCP transport
 - RFC3915: Redemption Grace Period extension
 - RFC5910: DNSSEC secDNS extension
+- RFC8334: Launch Phase Mapping extension
 - fee-0.7: Fee extension
 
-Extension namespaces are advertised at login where required by supported registries. Launch extension support is planned under `extensions/launch`.
+Extension namespaces are advertised at login where required by supported registries.
 
 ## Installation
 
@@ -256,11 +257,6 @@ The `examples/` package contains small compile-checked examples for login/logout
 
 ## Roadmap
 
-- Poll message support
-- RGP extension commands
-- DNSSEC extension commands
-- Fee extension commands
-- Launch extension commands
 - Additional registry-specific extension packages
 - v1.0 API freeze and compatibility policy
 

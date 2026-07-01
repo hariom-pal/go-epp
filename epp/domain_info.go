@@ -7,6 +7,7 @@ import (
 
 	"github.com/hariom-pal/go-epp/constants"
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
@@ -45,11 +46,19 @@ func (c *Client) DomainInfo(
 		}
 	}
 
+	if !launchext.ValidInfo(req.Launch) {
+		return nil, &Error{
+			Code:    constants.ResultParameterError,
+			Message: "invalid launch info extension",
+		}
+	}
+
 	request := domainInfoRequestXML{
 		XMLNS:       constants.EPPNamespace,
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainInfoCommandXML{
 			ClientTRID: c.nextTRID("INFO"),
+			Extension:  domainInfoExtension(req),
 			Info: domainInfoXML{
 				Domain: domainInfoObjectXML{
 					Name: domainInfoNameXML{
@@ -98,7 +107,7 @@ func (c *Client) DomainInfo(
 	rgpInfo := rgpext.InfoDataFromXML(response.Response.Extension.RGPInfoData)
 	secDNSInfo := secdnsext.InfoDataFromXML(response.Response.Extension.SecDNSInfoData)
 	feeInfo := feeext.InfoDataFromXML(response.Response.Extension.FeeInfoData)
-	launchInfo := response.Response.Extension.LaunchInfoData
+	launchInfo := launchext.InfoDataFromXML(response.Response.Extension.LaunchInfoData)
 	idnInfo := response.Response.Extension.IDNInfoData
 
 	unicode, err := idn.ToUnicode(info.Name)
@@ -137,12 +146,13 @@ func (c *Client) DomainInfo(
 				Credits:  make([]types.DomainFeeAmount, 0, len(feeInfo.Credits)),
 			},
 			Launch: types.DomainLaunchInfo{
-				Phase:         strings.TrimSpace(launchInfo.Phase),
+				Phase:         strings.TrimSpace(launchInfo.Phase.Value),
 				ApplicationID: strings.TrimSpace(launchInfo.ApplicationID),
-				Status:        launchInfo.Status.Value,
+				Status:        launchInfo.Status.Status,
 				StatusText:    strings.TrimSpace(launchInfo.Status.Text),
 				StatusLang:    launchInfo.Status.Lang,
 			},
+			LaunchData: launchInfo,
 			IDN: types.DomainIDNInfo{
 				Table: strings.TrimSpace(idnInfo.Table),
 			},
@@ -286,6 +296,20 @@ func (c *Client) DomainInfo(
 	}
 
 	return resp, nil
+}
+
+func domainInfoExtension(
+	req types.DomainInfoRequest,
+) *domainInfoExtensionXML {
+
+	launchInfo := launchext.NewInfo(req.Launch)
+	if launchInfo == nil {
+		return nil
+	}
+
+	return &domainInfoExtensionXML{
+		LaunchInfo: launchInfo,
+	}
 }
 
 func parseEPPDateTime(value string) *time.Time {

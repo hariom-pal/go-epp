@@ -14,11 +14,8 @@ This document tracks protocol coverage for the SDK.
 
 - RFC3915: Redemption Grace Period extension under `extensions/rgp`.
 - RFC5910: DNSSEC secDNS-1.1 extension under `extensions/secdns`.
+- RFC8334: Launch Phase Mapping extension under `extensions/launch`.
 - fee-0.7: Fee extension under `extensions/fee`.
-
-## Planned
-
-- Launch extension support under `extensions/launch`.
 
 ## Notes
 

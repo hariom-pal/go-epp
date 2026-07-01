@@ -1,6 +1,10 @@
 package epp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
+)
 
 // ============================================================
 // DOMAIN DELETE REQUEST
@@ -16,8 +20,13 @@ type domainDeleteRequestXML struct {
 }
 
 type domainDeleteCommandXML struct {
-	Delete     domainDeleteXML `xml:"delete"`
-	ClientTRID string          `xml:"clTRID"`
+	Delete     domainDeleteXML           `xml:"delete"`
+	Extension  *domainDeleteExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                    `xml:"clTRID"`
+}
+
+type domainDeleteExtensionXML struct {
+	LaunchDelete *launchext.DeleteXML `xml:"launch:delete,omitempty"`
 }
 
 type domainDeleteXML struct {

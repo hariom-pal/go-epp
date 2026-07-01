@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
@@ -22,8 +23,13 @@ type domainInfoRequestXML struct {
 }
 
 type domainInfoCommandXML struct {
-	Info       domainInfoXML `xml:"info"`
-	ClientTRID string        `xml:"clTRID"`
+	Info       domainInfoXML           `xml:"info"`
+	Extension  *domainInfoExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                  `xml:"clTRID"`
+}
+
+type domainInfoExtensionXML struct {
+	LaunchInfo *launchext.InfoXML `xml:"launch:info,omitempty"`
 }
 
 type domainInfoXML struct {
@@ -108,15 +114,7 @@ type domainInfoResponseXML struct {
 
 			FeeInfoData feeext.InfoDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 infData"`
 
-			LaunchInfoData struct {
-				Phase  string `xml:"phase"`
-				Status struct {
-					Value string `xml:"s,attr"`
-					Lang  string `xml:"lang,attr"`
-					Text  string `xml:",chardata"`
-				} `xml:"status"`
-				ApplicationID string `xml:"applicationID"`
-			} `xml:"urn:ietf:params:xml:ns:launch-1.0 infData"`
+			LaunchInfoData launchext.InfoDataXML `xml:"urn:ietf:params:xml:ns:launch-1.0 infData"`
 
 			IDNInfoData struct {
 				Table string `xml:"table"`

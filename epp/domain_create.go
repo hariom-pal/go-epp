@@ -7,6 +7,7 @@ import (
 
 	"github.com/hariom-pal/go-epp/constants"
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
@@ -98,6 +99,13 @@ func buildDomainCreateRequestXML(
 		}
 	}
 
+	if !launchext.ValidCreate(req.Launch) {
+		return nil, &Error{
+			Code:    constants.ResultParameterError,
+			Message: "invalid launch create extension",
+		}
+	}
+
 	request := domainCreateRequestXML{
 		XMLNS:       constants.EPPNamespace,
 		DomainXMLNS: constants.DomainNamespace,
@@ -147,8 +155,10 @@ func domainCreateExtension(
 	}
 
 	extension.SecDNSCreate = secdnsext.NewCreate(req.SecDNS)
+	extension.LaunchCreate = launchext.NewCreate(req.Launch)
 
 	if extension.FeeCreate == nil &&
+		extension.LaunchCreate == nil &&
 		extension.SecDNSCreate == nil {
 
 		return nil
@@ -195,6 +205,7 @@ func parseDomainCreateResponseXML(
 		Result: types.DomainCreateResult{
 			Domain: unicode,
 			Fee:    feeext.TransformDataFromXML(response.Response.Extension.FeeCreateData),
+			Launch: launchext.IDDataFromXML(response.Response.Extension.LaunchCreateData),
 		},
 	}
 

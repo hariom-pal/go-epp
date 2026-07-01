@@ -13,6 +13,7 @@ The format follows Keep a Changelog, and this project aims to use semantic versi
 - fee-0.7 reusable extension package.
 - RFC5910 secDNS-1.1 reusable extension package.
 - RFC3915 RGP reusable extension package.
+- RFC8334 launch reusable extension package.
 - Optional extension integration for supported domain operations.
 - Repository documentation for architecture, supported RFCs, and registry compatibility.
 

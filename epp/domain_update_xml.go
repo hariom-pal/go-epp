@@ -3,6 +3,7 @@ package epp
 import (
 	"encoding/xml"
 
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
@@ -27,6 +28,7 @@ type domainUpdateCommandXML struct {
 }
 
 type domainUpdateExtensionXML struct {
+	LaunchUpdate *launchext.UpdateXML `xml:"launch:update,omitempty"`
 	RGPUpdate    *rgpext.UpdateXML    `xml:"rgp:update,omitempty"`
 	SecDNSUpdate *secdnsext.UpdateXML `xml:"secDNS:update,omitempty"`
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
@@ -93,6 +94,13 @@ func buildDomainUpdateRequestXML(
 		}
 	}
 
+	if !launchext.ValidUpdate(req.Launch) {
+		return "", nil, &Error{
+			Code:    constants.ResultParameterError,
+			Message: "invalid launch update extension",
+		}
+	}
+
 	if !secdnsext.ValidUpdate(req.SecDNS) {
 		return "", nil, &Error{
 			Code:    constants.ResultParameterError,
@@ -147,11 +155,13 @@ func domainUpdateExtension(
 ) *domainUpdateExtensionXML {
 
 	extension := &domainUpdateExtensionXML{
+		LaunchUpdate: launchext.NewUpdate(req.Launch),
 		RGPUpdate:    rgpext.NewUpdate(req.RGP),
 		SecDNSUpdate: secdnsext.NewUpdate(req.SecDNS),
 	}
 
-	if extension.RGPUpdate == nil &&
+	if extension.LaunchUpdate == nil &&
+		extension.RGPUpdate == nil &&
 		extension.SecDNSUpdate == nil {
 
 		return nil
@@ -167,7 +177,7 @@ func domainUpdateChangeForExtension(
 	req types.DomainUpdateRequest,
 ) *domainUpdateChangeXML {
 
-	if change != nil || add != nil || remove != nil || req.RGP == nil {
+	if change != nil || add != nil || remove != nil || (req.RGP == nil && req.Launch == nil) {
 		return change
 	}
 

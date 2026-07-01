@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -53,11 +54,19 @@ func buildDomainDeleteRequestXML(
 		return "", nil, err
 	}
 
+	if !launchext.ValidDelete(req.Launch) {
+		return "", nil, &Error{
+			Code:    constants.ResultParameterError,
+			Message: "invalid launch delete extension",
+		}
+	}
+
 	request := domainDeleteRequestXML{
 		XMLNS:       constants.EPPNamespace,
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainDeleteCommandXML{
 			ClientTRID: clientTRID,
+			Extension:  domainDeleteExtension(req),
 			Delete: domainDeleteXML{
 				Domain: domainDeleteObjectXML{
 					Name: ascii,
@@ -78,6 +87,20 @@ func buildDomainDeleteRequestXML(
 	requestXML = append([]byte(xml.Header), requestXML...)
 
 	return domain, requestXML, nil
+}
+
+func domainDeleteExtension(
+	req types.DomainDeleteRequest,
+) *domainDeleteExtensionXML {
+
+	launchDelete := launchext.NewDelete(req.Launch)
+	if launchDelete == nil {
+		return nil
+	}
+
+	return &domainDeleteExtensionXML{
+		LaunchDelete: launchDelete,
+	}
 }
 
 func parseDomainDeleteResponseXML(

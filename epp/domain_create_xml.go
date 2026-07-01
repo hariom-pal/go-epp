@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
 
@@ -28,6 +29,7 @@ type domainCreateCommandXML struct {
 
 type domainCreateExtensionXML struct {
 	FeeCreate    *feeext.TransformXML `xml:"fee:create,omitempty"`
+	LaunchCreate *launchext.CreateXML `xml:"launch:create,omitempty"`
 	SecDNSCreate *secdnsext.CreateXML `xml:"secDNS:create,omitempty"`
 }
 
@@ -105,7 +107,8 @@ type domainCreateResponseXML struct {
 		} `xml:"trID"`
 
 		Extension struct {
-			FeeCreateData feeext.TransformDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 creData"`
+			FeeCreateData    feeext.TransformDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 creData"`
+			LaunchCreateData launchext.IDDataXML     `xml:"urn:ietf:params:xml:ns:launch-1.0 creData"`
 		} `xml:"extension"`
 	} `xml:"response"`
 }
