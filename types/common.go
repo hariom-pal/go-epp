@@ -11,6 +11,42 @@ type Response struct {
 	ServerTRID string
 }
 
+//
+// ============================================================
+// GREETING
+// ============================================================
+//
+
+// Greeting contains RFC5730 server greeting data.
+type Greeting struct {
+	ServerID string
+
+	ServerDate *time.Time
+
+	Versions            []string
+	Languages           []string
+	SupportedObjects    []string
+	SupportedExtensions []string
+
+	DCP GreetingDCP
+}
+
+// GreetingDCP contains RFC5730 data collection policy metadata.
+type GreetingDCP struct {
+	Access     string
+	Statements []GreetingDCPStatement
+}
+
+// GreetingDCPStatement contains one RFC5730 data collection policy statement.
+type GreetingDCPStatement struct {
+	Purposes   []string
+	Recipients []string
+	Retentions []string
+
+	ExpiryAbsolute *time.Time
+	ExpiryRelative string
+}
+
 // PostalInfo contains reusable RFC5733 contact postal information.
 type PostalInfo struct {
 	Type string

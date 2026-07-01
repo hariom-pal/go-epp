@@ -30,6 +30,10 @@ func main() {
 	fmt.Println(string(client.Greeting()))
 	fmt.Println("=====================================")
 
+	if err := runHello(client, options.Hello); err != nil {
+		log.Fatal(err)
+	}
+
 	// --------------------------------------------------
 	// LOGIN
 	// --------------------------------------------------
