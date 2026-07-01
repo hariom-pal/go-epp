@@ -109,6 +109,18 @@ func TestDomainRenewInvalidPeriod(t *testing.T) {
 	assertEPPErrorCode(t, err, constants.ResultParameterError)
 }
 
+func TestDomainRenewRejectsPeriodAboveMaximum(t *testing.T) {
+	client := &epp.Client{}
+
+	_, err := client.DomainRenew(types.DomainRenewRequest{
+		DomainName:        "example.in",
+		CurrentExpiryDate: time.Date(2027, 6, 30, 0, 0, 0, 0, time.UTC),
+		Period:            100,
+		Unit:              "y",
+	})
+	assertEPPErrorCode(t, err, constants.ResultParameterError)
+}
+
 func assertDomainRenewResponse(
 	t *testing.T,
 	resp *types.DomainRenewResponse,

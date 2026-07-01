@@ -148,6 +148,12 @@ func contactUpdateStatuses(
 				Message: "contact status is required",
 			}
 		}
+		if !constants.IsContactStatus(value) {
+			return nil, &Error{
+				Code:    constants.ResultParameterError,
+				Message: "invalid contact status",
+			}
+		}
 		result.Statuses = append(result.Statuses, contactUpdateStatusXML{
 			Status: value,
 		})

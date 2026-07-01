@@ -160,28 +160,7 @@ func domainRenewPeriod(
 		}
 	}
 
-	if period.Value < 1 {
-		return types.Period{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "period must be greater than 0",
-		}
-	}
-
-	period.Unit = strings.ToLower(strings.TrimSpace(period.Unit))
-	if period.Unit == "" {
-		period.Unit = domainCreatePeriodUnitYears
-	}
-
-	if period.Unit != domainCreatePeriodUnitYears &&
-		period.Unit != domainCreatePeriodUnitMonths {
-
-		return types.Period{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "period unit must be y or m",
-		}
-	}
-
-	return period, nil
+	return domainPeriod(period.Value, period.Unit, true)
 }
 
 func parseDomainRenewDateTime(

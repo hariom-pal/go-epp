@@ -136,6 +136,16 @@ func TestContactUpdateEmptyRequestValidation(t *testing.T) {
 	assertEPPErrorCode(t, err, constants.ResultParameterError)
 }
 
+func TestContactUpdateInvalidStatusValidation(t *testing.T) {
+	client := &epp.Client{}
+
+	_, err := client.ContactUpdate(types.ContactUpdateRequest{
+		ContactID:   "CNT001",
+		AddStatuses: []string{"notAStatus"},
+	})
+	assertEPPErrorCode(t, err, constants.ResultParameterError)
+}
+
 func contactUpdateResponse() string {
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <epp xmlns="urn:ietf:params:xml:ns:epp-1.0">

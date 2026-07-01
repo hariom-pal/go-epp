@@ -52,3 +52,29 @@ const (
 	// StatusServerUpdateProhibited indicates the server prohibits domain update.
 	StatusServerUpdateProhibited = "serverUpdateProhibited"
 )
+
+// IsDomainStatus reports whether status is a known RFC5731 domain status value.
+func IsDomainStatus(status string) bool {
+	switch status {
+	case StatusOK,
+		StatusInactive,
+		StatusPendingCreate,
+		StatusPendingDelete,
+		StatusPendingRenew,
+		StatusPendingTransfer,
+		StatusPendingUpdate,
+		StatusClientHold,
+		StatusClientDeleteProhibited,
+		StatusClientRenewProhibited,
+		StatusClientTransferProhibited,
+		StatusClientUpdateProhibited,
+		StatusServerHold,
+		StatusServerDeleteProhibited,
+		StatusServerRenewProhibited,
+		StatusServerTransferProhibited,
+		StatusServerUpdateProhibited:
+		return true
+	default:
+		return false
+	}
+}

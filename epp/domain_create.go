@@ -2,6 +2,7 @@ package epp
 
 import (
 	"encoding/xml"
+	"net"
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
@@ -57,25 +58,9 @@ func buildDomainCreateRequestXML(
 		return nil, err
 	}
 
-	if req.Period < 1 || req.Period > domainCreateMaxPeriod {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "period must be between 1 and 99",
-		}
-	}
-
-	unit := strings.ToLower(strings.TrimSpace(req.Unit))
-	if unit == "" {
-		unit = domainCreatePeriodUnitYears
-	}
-
-	if unit != domainCreatePeriodUnitYears &&
-		unit != domainCreatePeriodUnitMonths {
-
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "period unit must be y or m",
-		}
+	period, err := domainPeriod(req.Period, req.Unit, true)
+	if err != nil {
+		return nil, err
 	}
 
 	registrant := strings.TrimSpace(req.Registrant)
@@ -113,8 +98,8 @@ func buildDomainCreateRequestXML(
 				Domain: domainCreateObjectXML{
 					Name: ascii,
 					Period: &domainCreatePeriodXML{
-						Unit:  unit,
-						Value: req.Period,
+						Unit:  period.Unit,
+						Value: period.Value,
 					},
 					NameServers: nameServers,
 					Registrant:  registrant,
@@ -332,6 +317,28 @@ func domainCreateNameServers(
 				return nil, &Error{
 					Code:    constants.ResultParameterError,
 					Message: "host address version must be v4 or v6",
+				}
+			}
+
+			parsedIP := net.ParseIP(ip)
+			if parsedIP == nil {
+				return nil, &Error{
+					Code:    constants.ResultParameterError,
+					Message: "host address must be a valid IP address",
+				}
+			}
+
+			if version == "v4" && parsedIP.To4() == nil {
+				return nil, &Error{
+					Code:    constants.ResultParameterError,
+					Message: "host address must be a valid IPv4 address",
+				}
+			}
+
+			if version == "v6" && parsedIP.To4() != nil {
+				return nil, &Error{
+					Code:    constants.ResultParameterError,
+					Message: "host address must be a valid IPv6 address",
 				}
 			}
 

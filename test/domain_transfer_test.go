@@ -101,6 +101,19 @@ func TestDomainTransferRequestRequiresAuthInfo(t *testing.T) {
 	assertEPPErrorCode(t, err, constants.ResultParameterError)
 }
 
+func TestDomainTransferRejectsPeriodAboveMaximum(t *testing.T) {
+	client := &epp.Client{}
+
+	_, err := client.DomainTransfer(types.DomainTransferRequest{
+		DomainName: "example.in",
+		Operation:  constants.TransferRequest,
+		AuthInfo:   "secret123",
+		Period:     100,
+		Unit:       "y",
+	})
+	assertEPPErrorCode(t, err, constants.ResultParameterError)
+}
+
 func runDomainTransferTest(
 	t *testing.T,
 	req types.DomainTransferRequest,

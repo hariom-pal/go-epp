@@ -273,6 +273,12 @@ func domainUpdateStatuses(
 				Message: "domain status is required",
 			}
 		}
+		if !constants.IsDomainStatus(status) {
+			return nil, &Error{
+				Code:    constants.ResultParameterError,
+				Message: "invalid domain status",
+			}
+		}
 
 		result = append(result, domainUpdateStatusXML{
 			Status: status,
@@ -285,6 +291,12 @@ func domainUpdateStatuses(
 			return nil, &Error{
 				Code:    constants.ResultParameterError,
 				Message: "domain status is required",
+			}
+		}
+		if !constants.IsDomainStatus(statusValue) {
+			return nil, &Error{
+				Code:    constants.ResultParameterError,
+				Message: "invalid domain status",
 			}
 		}
 

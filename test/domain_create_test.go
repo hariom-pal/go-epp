@@ -166,6 +166,27 @@ func TestDomainCreateInvalidPeriod(t *testing.T) {
 	assertEPPErrorCode(t, err, constants.ResultParameterError)
 }
 
+func TestDomainCreateInvalidNameServerIP(t *testing.T) {
+	client := &epp.Client{}
+
+	_, err := client.DomainCreate(types.DomainCreateRequest{
+		Domain:     "example.in",
+		Period:     1,
+		Unit:       "y",
+		Registrant: "ABC123",
+		NameServerInfo: []types.DomainNameServer{
+			{
+				HostName: "ns1.example.in",
+				Addresses: []types.DomainHostAddress{
+					{Version: "v4", IP: "2001:db8::1"},
+				},
+			},
+		},
+		AuthInfo: "mySecret",
+	})
+	assertEPPErrorCode(t, err, constants.ResultParameterError)
+}
+
 func TestDomainCreateInvalidContacts(t *testing.T) {
 	client := &epp.Client{}
 

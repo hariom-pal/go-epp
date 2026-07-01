@@ -169,6 +169,12 @@ func hostUpdateList(
 				Message: "host status is required",
 			}
 		}
+		if !constants.IsHostStatus(status) {
+			return nil, &Error{
+				Code:    constants.ResultParameterError,
+				Message: "invalid host status",
+			}
+		}
 
 		result.Statuses = append(result.Statuses, hostUpdateStatusXML{
 			Status: status,

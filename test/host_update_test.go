@@ -180,6 +180,16 @@ func TestHostUpdateEmptyStatusValidation(t *testing.T) {
 	assertEPPErrorCode(t, err, constants.ResultParameterError)
 }
 
+func TestHostUpdateInvalidStatusValidation(t *testing.T) {
+	client := &epp.Client{}
+
+	_, err := client.HostUpdate(types.HostUpdateRequest{
+		HostName:    "ns1.example.in",
+		AddStatuses: []string{"notAStatus"},
+	})
+	assertEPPErrorCode(t, err, constants.ResultParameterError)
+}
+
 func assertHostUpdateResponse(
 	t *testing.T,
 	resp *types.HostUpdateResponse,

@@ -22,3 +22,19 @@ const (
 	// HostStatusClientUpdateProhibited indicates the client prohibits host update.
 	HostStatusClientUpdateProhibited = "clientUpdateProhibited"
 )
+
+// IsHostStatus reports whether status is a known RFC5732 host status value.
+func IsHostStatus(status string) bool {
+	switch status {
+	case HostStatusOK,
+		HostStatusLinked,
+		HostStatusPendingCreate,
+		HostStatusPendingDelete,
+		HostStatusPendingUpdate,
+		HostStatusClientDeleteProhibited,
+		HostStatusClientUpdateProhibited:
+		return true
+	default:
+		return false
+	}
+}

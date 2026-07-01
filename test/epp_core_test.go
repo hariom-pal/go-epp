@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/binary"
 	"net"
 	"strings"
 	"testing"
@@ -35,6 +36,29 @@ func TestFrameReadWrite(t *testing.T) {
 
 	if string(got) != string(payload) {
 		t.Fatalf("unexpected frame payload: %s", string(got))
+	}
+}
+
+func TestReadFrameRejectsInvalidLength(t *testing.T) {
+	clientConn, serverConn := net.Pipe()
+	defer clientConn.Close()
+	defer serverConn.Close()
+
+	done := make(chan error, 1)
+	go func() {
+		header := make([]byte, 4)
+		binary.BigEndian.PutUint32(header, 3)
+		_, err := serverConn.Write(header)
+		done <- err
+	}()
+
+	_, err := epp.ReadFrame(clientConn)
+	if err == nil {
+		t.Fatal("expected invalid frame length error")
+	}
+
+	if err := <-done; err != nil {
+		t.Fatalf("write invalid frame failed: %v", err)
 	}
 }
 

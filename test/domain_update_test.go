@@ -109,6 +109,16 @@ func TestDomainUpdateNoOperationValidation(t *testing.T) {
 	assertEPPErrorCode(t, err, constants.ResultParameterError)
 }
 
+func TestDomainUpdateInvalidStatusValidation(t *testing.T) {
+	client := &epp.Client{}
+
+	_, err := client.DomainUpdate(types.DomainUpdateRequest{
+		DomainName:  "example.in",
+		AddStatuses: []string{"notAStatus"},
+	})
+	assertEPPErrorCode(t, err, constants.ResultParameterError)
+}
+
 func assertDomainUpdateResponse(
 	t *testing.T,
 	resp *types.DomainUpdateResponse,

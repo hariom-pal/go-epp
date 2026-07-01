@@ -28,3 +28,21 @@ const (
 	// ContactStatusClientUpdateProhibited indicates the client prohibits contact update.
 	ContactStatusClientUpdateProhibited = "clientUpdateProhibited"
 )
+
+// IsContactStatus reports whether status is a known RFC5733 contact status value.
+func IsContactStatus(status string) bool {
+	switch status {
+	case ContactStatusOK,
+		ContactStatusLinked,
+		ContactStatusPendingCreate,
+		ContactStatusPendingDelete,
+		ContactStatusPendingTransfer,
+		ContactStatusPendingUpdate,
+		ContactStatusClientDeleteProhibited,
+		ContactStatusClientTransferProhibited,
+		ContactStatusClientUpdateProhibited:
+		return true
+	default:
+		return false
+	}
+}
