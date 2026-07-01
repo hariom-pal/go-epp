@@ -48,6 +48,8 @@ type cliOptions struct {
 	InfoDomain string
 	InfoHosts  string
 
+	DomainDeleteName string
+
 	DomainUpdateName              string
 	DomainUpdateAddNameServers    []string
 	DomainUpdateRemoveNameServers []string
@@ -126,6 +128,7 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.ContactDeleteID, "contact-delete", "", "contact ID for contact delete")
 	flag.StringVar(&options.InfoDomain, "info", "", "domain for domain info")
 	flag.StringVar(&options.InfoHosts, "hosts", "", "domain info hosts value: all, del, sub, or none")
+	flag.StringVar(&options.DomainDeleteName, "domain-delete", "", "domain name for domain delete")
 	flag.StringVar(&options.DomainUpdateName, "domain-update", "", "domain name for domain update")
 	flag.StringVar(&options.DomainUpdateRegistrant, "domain-registrant", "", "new registrant for domain update")
 	flag.StringVar(&options.DomainUpdateAuthInfo, "domain-authInfo", "", "new authInfo password for domain update")

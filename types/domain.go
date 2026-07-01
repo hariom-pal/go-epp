@@ -244,7 +244,8 @@ type DomainUpdateResult struct {
 //
 
 type DomainDeleteRequest struct {
-	Domain string
+	Domain     string
+	DomainName string
 }
 
 type DomainDeleteResponse struct {
@@ -254,7 +255,8 @@ type DomainDeleteResponse struct {
 }
 
 type DomainDeleteResult struct {
-	Domain string
+	Domain     string
+	DomainName string
 }
 
 //

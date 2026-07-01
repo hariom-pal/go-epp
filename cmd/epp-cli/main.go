@@ -96,6 +96,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runDomainDelete(client, options.DomainDeleteName); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runDomainInfo(client, options.InfoDomain, options.InfoHosts); err != nil {
 		log.Fatal(err)
 	}
