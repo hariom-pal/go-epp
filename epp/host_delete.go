@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// HostDelete deletes a host object.
 func (c *Client) HostDelete(
 	req types.HostDeleteRequest,
 ) (*types.HostDeleteResponse, error) {

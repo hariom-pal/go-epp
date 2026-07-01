@@ -8,6 +8,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// ContactDelete deletes a contact object.
 func (c *Client) ContactDelete(
 	req types.ContactDeleteRequest,
 ) (*types.ContactDeleteResponse, error) {

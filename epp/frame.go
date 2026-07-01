@@ -6,6 +6,7 @@ import (
 	"net"
 )
 
+// ReadFrame reads a single RFC5734 EPP frame payload from conn.
 func ReadFrame(conn net.Conn) ([]byte, error) {
 	header := make([]byte, 4)
 
@@ -24,6 +25,7 @@ func ReadFrame(conn net.Conn) ([]byte, error) {
 	return payload, nil
 }
 
+// WriteFrame writes payload as a single RFC5734 EPP frame to conn.
 func WriteFrame(conn net.Conn, payload []byte) error {
 	length := uint32(len(payload) + 4)
 

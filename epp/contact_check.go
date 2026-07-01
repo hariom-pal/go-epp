@@ -8,6 +8,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// ContactCheck checks availability for one or more contact IDs.
 func (c *Client) ContactCheck(
 	req types.ContactCheckRequest,
 ) (*types.ContactCheckResponse, error) {

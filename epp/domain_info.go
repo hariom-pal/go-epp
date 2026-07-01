@@ -10,6 +10,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// DomainInfo retrieves RFC5731 information for a domain.
 func (c *Client) DomainInfo(
 	req types.DomainInfoRequest,
 ) (*types.DomainInfoResponse, error) {

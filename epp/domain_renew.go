@@ -12,6 +12,7 @@ import (
 
 const domainRenewDateLayout = "2006-01-02"
 
+// DomainRenew renews a domain registration.
 func (c *Client) DomainRenew(
 	req types.DomainRenewRequest,
 ) (*types.DomainRenewResponse, error) {

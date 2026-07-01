@@ -224,7 +224,10 @@ func startDomainCreateServer(
 		_ = epp.WriteFrame(conn, []byte(responseXML))
 	}()
 
-	addr := listener.Addr().(*net.TCPAddr)
+	addr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
+		t.Fatalf("expected TCP listener address, got %T", listener.Addr())
+	}
 
 	cfg := &config.Config{
 		Server: config.ServerConfig{

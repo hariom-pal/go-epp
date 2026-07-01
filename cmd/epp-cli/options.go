@@ -7,12 +7,20 @@ type cliOptions struct {
 
 	CheckDomains string
 
-	HostCheckNames []string
-	HostInfoName   string
-	HostCreateName string
-	HostCreateIPv4 []string
-	HostCreateIPv6 []string
-	HostDeleteName string
+	HostCheckNames           []string
+	HostInfoName             string
+	HostCreateName           string
+	HostCreateIPv4           []string
+	HostCreateIPv6           []string
+	HostUpdateName           string
+	HostUpdateNewName        string
+	HostUpdateAddIPv4        []string
+	HostUpdateAddIPv6        []string
+	HostUpdateRemoveIPv4     []string
+	HostUpdateRemoveIPv6     []string
+	HostUpdateAddStatuses    []string
+	HostUpdateRemoveStatuses []string
+	HostDeleteName           string
 
 	ContactCheckIDs []string
 	ContactInfoID   string
@@ -87,6 +95,12 @@ func parseOptions() cliOptions {
 	var hostCheckNames stringList
 	var hostCreateIPv4 stringList
 	var hostCreateIPv6 stringList
+	var hostUpdateAddIPv4 stringList
+	var hostUpdateAddIPv6 stringList
+	var hostUpdateRemoveIPv4 stringList
+	var hostUpdateRemoveIPv6 stringList
+	var hostUpdateAddStatuses stringList
+	var hostUpdateRemoveStatuses stringList
 	var contactCheckIDs stringList
 	var domainUpdateAddNameServers stringList
 	var domainUpdateRemoveNameServers stringList
@@ -102,6 +116,8 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.ConfigPath, "config", "configs/config.yaml", "path to config YAML")
 	flag.StringVar(&options.CheckDomains, "check", "", "comma-separated domains for domain check")
 	flag.StringVar(&options.HostCreateName, "host-create", "", "host name for host create")
+	flag.StringVar(&options.HostUpdateName, "host-update", "", "host name for host update")
+	flag.StringVar(&options.HostUpdateNewName, "host-new-name", "", "new host name for host update")
 	flag.StringVar(&options.HostDeleteName, "host-delete", "", "host name for host delete")
 	flag.StringVar(&options.HostInfoName, "host-info", "", "host name for host info")
 	flag.StringVar(&options.ContactInfoID, "contact-info", "", "contact ID for contact info")
@@ -149,6 +165,12 @@ func parseOptions() cliOptions {
 	flag.Var(&hostCheckNames, "host-check", "host name for host check; may be repeated")
 	flag.Var(&hostCreateIPv4, "ipv4", "IPv4 address for host create; may be repeated")
 	flag.Var(&hostCreateIPv6, "ipv6", "IPv6 address for host create; may be repeated")
+	flag.Var(&hostUpdateAddIPv4, "host-add-ipv4", "IPv4 address to add during host update; may be repeated")
+	flag.Var(&hostUpdateAddIPv6, "host-add-ipv6", "IPv6 address to add during host update; may be repeated")
+	flag.Var(&hostUpdateRemoveIPv4, "host-rem-ipv4", "IPv4 address to remove during host update; may be repeated")
+	flag.Var(&hostUpdateRemoveIPv6, "host-rem-ipv6", "IPv6 address to remove during host update; may be repeated")
+	flag.Var(&hostUpdateAddStatuses, "host-add-status", "host status to add during host update; may be repeated")
+	flag.Var(&hostUpdateRemoveStatuses, "host-rem-status", "host status to remove during host update; may be repeated")
 	flag.Var(&contactCheckIDs, "contact-check", "contact ID for contact check; may be repeated")
 	flag.Var(&domainUpdateAddNameServers, "domain-add-ns", "hostObj name server to add during domain update; may be repeated")
 	flag.Var(&domainUpdateRemoveNameServers, "domain-rem-ns", "hostObj name server to remove during domain update; may be repeated")
@@ -165,6 +187,12 @@ func parseOptions() cliOptions {
 	options.HostCheckNames = []string(hostCheckNames)
 	options.HostCreateIPv4 = []string(hostCreateIPv4)
 	options.HostCreateIPv6 = []string(hostCreateIPv6)
+	options.HostUpdateAddIPv4 = []string(hostUpdateAddIPv4)
+	options.HostUpdateAddIPv6 = []string(hostUpdateAddIPv6)
+	options.HostUpdateRemoveIPv4 = []string(hostUpdateRemoveIPv4)
+	options.HostUpdateRemoveIPv6 = []string(hostUpdateRemoveIPv6)
+	options.HostUpdateAddStatuses = []string(hostUpdateAddStatuses)
+	options.HostUpdateRemoveStatuses = []string(hostUpdateRemoveStatuses)
 	options.ContactCheckIDs = []string(contactCheckIDs)
 	options.DomainUpdateAddNameServers = []string(domainUpdateAddNameServers)
 	options.DomainUpdateRemoveNameServers = []string(domainUpdateRemoveNameServers)

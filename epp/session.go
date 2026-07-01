@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/internal/config"
 )
 
+// Connect opens a TLS EPP session and reads the server greeting.
 func Connect(cfg *config.Config) (*Client, error) {
 
 	// Load client certificate

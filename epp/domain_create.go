@@ -16,6 +16,7 @@ const (
 	domainCreateMaxPeriod = 99
 )
 
+// DomainCreate creates a domain object.
 func (c *Client) DomainCreate(
 	req types.DomainCreateRequest,
 ) (*types.DomainCreateResponse, error) {

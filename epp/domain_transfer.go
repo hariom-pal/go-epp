@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// DomainTransfer performs a domain transfer query, request, approve, cancel, or reject command.
 func (c *Client) DomainTransfer(
 	req types.DomainTransferRequest,
 ) (*types.DomainTransferResponse, error) {

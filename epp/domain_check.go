@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// DomainCheck checks availability for one or more domains.
 func (c *Client) DomainCheck(
 	req types.DomainCheckRequest,
 ) (*types.DomainCheckResponse, error) {

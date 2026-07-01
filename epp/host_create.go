@@ -15,6 +15,7 @@ const (
 	hostAddressIPv6 = "v6"
 )
 
+// HostCreate creates a host object.
 func (c *Client) HostCreate(
 	req types.HostCreateRequest,
 ) (*types.HostCreateResponse, error) {

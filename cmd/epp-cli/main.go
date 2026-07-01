@@ -56,6 +56,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runHostUpdate(client, options); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runHostDelete(client, options.HostDeleteName); err != nil {
 		log.Fatal(err)
 	}

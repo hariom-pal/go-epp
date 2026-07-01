@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// HostInfo retrieves RFC5732 information for a host.
 func (c *Client) HostInfo(
 	req types.HostInfoRequest,
 ) (*types.HostInfoResponse, error) {

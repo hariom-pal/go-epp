@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Logout sends an EPP logout command.
 func (c *Client) Logout() error {
 
 	trID := c.nextTRID("LOGOUT")

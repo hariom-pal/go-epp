@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Login sends an EPP login command using the client's configured credentials.
 func (c *Client) Login() error {
 
 	trID := c.nextTRID("LOGIN")

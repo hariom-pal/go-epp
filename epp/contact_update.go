@@ -8,6 +8,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// ContactUpdate updates a contact object.
 func (c *Client) ContactUpdate(
 	req types.ContactUpdateRequest,
 ) (*types.ContactUpdateResponse, error) {

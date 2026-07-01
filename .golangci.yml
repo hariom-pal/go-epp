@@ -1,0 +1,40 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: none
+  enable:
+    - bodyclose
+    - copyloopvar
+    - errcheck
+    - govet
+    - ineffassign
+    - misspell
+    - nilerr
+    - staticcheck
+    - unconvert
+    - unused
+    - wastedassign
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: ^examples/
+        linters:
+          - unused
+
+formatters:
+  enable:
+    - gofmt
+    - goimports

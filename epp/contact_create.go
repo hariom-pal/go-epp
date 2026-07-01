@@ -8,6 +8,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// ContactCreate creates a contact object.
 func (c *Client) ContactCreate(
 	req types.ContactCreateRequest,
 ) (*types.ContactCreateResponse, error) {

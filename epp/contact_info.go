@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// ContactInfo retrieves RFC5733 information for a contact.
 func (c *Client) ContactInfo(
 	req types.ContactInfoRequest,
 ) (*types.ContactInfoResponse, error) {

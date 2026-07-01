@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// HostCheck checks availability for one or more host names.
 func (c *Client) HostCheck(
 	req types.HostCheckRequest,
 ) (*types.HostCheckResponse, error) {

@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// DomainDelete deletes a domain object.
 func (c *Client) DomainDelete(
 	req types.DomainDeleteRequest,
 ) (*types.DomainDeleteResponse, error) {

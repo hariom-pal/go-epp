@@ -1,5 +1,6 @@
 package epp
 
+// Execute sends raw EPP XML and returns the raw EPP response XML.
 func (c *Client) Execute(xml []byte) ([]byte, error) {
 
 	// Send Request

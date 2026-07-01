@@ -9,6 +9,7 @@ import (
 	"github.com/hariom-pal/go-epp/types"
 )
 
+// DomainUpdate updates a domain object using RFC5731 add, remove, and change sections.
 func (c *Client) DomainUpdate(
 	req types.DomainUpdateRequest,
 ) (*types.DomainUpdateResponse, error) {
