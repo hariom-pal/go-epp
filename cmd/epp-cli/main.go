@@ -44,6 +44,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runHostCheck(client, options.HostCheckNames); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runContactCheck(client, options.ContactCheckIDs); err != nil {
 		log.Fatal(err)
 	}
@@ -57,6 +61,10 @@ func main() {
 	}
 
 	if err := runContactUpdate(client, options); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := runContactDelete(client, options.ContactDeleteID); err != nil {
 		log.Fatal(err)
 	}
 

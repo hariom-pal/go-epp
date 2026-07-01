@@ -143,3 +143,17 @@ type ContactUpdateRequest struct {
 type ContactUpdateResponse struct {
 	Response
 }
+
+//
+// ============================================================
+// CONTACT DELETE
+// ============================================================
+//
+
+type ContactDeleteRequest struct {
+	ContactID string
+}
+
+type ContactDeleteResponse struct {
+	Response
+}

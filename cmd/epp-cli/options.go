@@ -7,6 +7,8 @@ type cliOptions struct {
 
 	CheckDomains string
 
+	HostCheckNames []string
+
 	ContactCheckIDs []string
 	ContactInfoID   string
 
@@ -36,6 +38,8 @@ type cliOptions struct {
 	ContactUpdateAddStatuses    []string
 	ContactUpdateRemoveStatuses []string
 
+	ContactDeleteID string
+
 	InfoDomain string
 	InfoHosts  string
 
@@ -57,6 +61,7 @@ func parseOptions() cliOptions {
 	var createTechContacts stringList
 	var createBillingContacts stringList
 	var createNameServers stringList
+	var hostCheckNames stringList
 	var contactCheckIDs stringList
 	var contactCreateStreets stringList
 	var contactCreateLocStreets stringList
@@ -86,6 +91,7 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.ContactCreateEmail, "contact-email", "", "email for contact create")
 	flag.StringVar(&options.ContactCreateAuthInfo, "contact-authInfo", "", "authInfo password for contact create")
 	flag.StringVar(&options.ContactUpdateID, "contact-update", "", "contact ID for contact update")
+	flag.StringVar(&options.ContactDeleteID, "contact-delete", "", "contact ID for contact delete")
 	flag.StringVar(&options.InfoDomain, "info", "", "domain for domain info")
 	flag.StringVar(&options.InfoHosts, "hosts", "", "domain info hosts value: all, del, sub, or none")
 	flag.StringVar(&options.CreateDomain, "create", "", "domain for domain create")
@@ -98,6 +104,7 @@ func parseOptions() cliOptions {
 	flag.Var(&createTechContacts, "tech", "tech contact for domain create; may be repeated")
 	flag.Var(&createBillingContacts, "billing", "billing contact for domain create; may be repeated")
 	flag.Var(&createNameServers, "ns", "hostObj name server for domain create; may be repeated")
+	flag.Var(&hostCheckNames, "host-check", "host name for host check; may be repeated")
 	flag.Var(&contactCheckIDs, "contact-check", "contact ID for contact check; may be repeated")
 	flag.Var(&contactCreateStreets, "contact-street", "international contact street for contact create; may be repeated")
 	flag.Var(&contactCreateLocStreets, "contact-loc-street", "localized contact street for contact create; may be repeated")
@@ -105,6 +112,7 @@ func parseOptions() cliOptions {
 	flag.Var(&contactUpdateRemoveStatuses, "contact-rem-status", "contact status to remove during contact update; may be repeated")
 	flag.Parse()
 
+	options.HostCheckNames = []string(hostCheckNames)
 	options.ContactCheckIDs = []string(contactCheckIDs)
 	options.ContactCreateStreets = []string(contactCreateStreets)
 	options.ContactCreateLocStreets = []string(contactCreateLocStreets)
