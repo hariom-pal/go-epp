@@ -1,6 +1,10 @@
 package epp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+)
 
 // ============================================================
 // DOMAIN CHECK REQUEST
@@ -16,8 +20,9 @@ type domainCheckRequestXML struct {
 }
 
 type domainCheckCommandXML struct {
-	Check      domainCheckXML `xml:"check"`
-	ClientTRID string         `xml:"clTRID"`
+	Check      domainCheckXML            `xml:"check"`
+	Extension  *feeext.CheckExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                    `xml:"clTRID"`
 }
 
 type domainCheckXML struct {
@@ -58,5 +63,9 @@ type domainCheckResponseXML struct {
 			ClientTRID string `xml:"clTRID"`
 			ServerTRID string `xml:"svTRID"`
 		} `xml:"trID"`
+
+		Extension struct {
+			FeeCheckData feeext.CheckDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 chkData"`
+		} `xml:"extension"`
 	} `xml:"response"`
 }

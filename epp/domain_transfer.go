@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -96,11 +97,17 @@ func buildDomainTransferRequestXML(
 		}
 	}
 
+	var extension *feeext.TransformExtensionXML
+	if operation == constants.TransferRequest {
+		extension = feeext.NewTransformExtension(feeext.CommandTransfer, req.Fee)
+	}
+
 	request := domainTransferRequestXML{
 		XMLNS:       constants.EPPNamespace,
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainTransferCommandXML{
 			ClientTRID: clientTRID,
+			Extension:  extension,
 			Transfer: domainTransferXML{
 				Operation: operation,
 				Domain: domainTransferObjectXML{
@@ -150,6 +157,7 @@ func parseDomainTransferResponseXML(
 	transferData := domainTransferDataFromXML(
 		response.Response.ResData.TransferData,
 	)
+	transferData.Fee = feeext.TransformDataFromXML(response.Response.Extension.FeeTransferData)
 
 	return &types.DomainTransferResponse{
 		Response: types.Response{

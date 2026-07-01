@@ -1,6 +1,10 @@
 package types
 
-import "time"
+import (
+	"time"
+
+	"github.com/hariom-pal/go-epp/extensions/fee"
+)
 
 //
 // ============================================================
@@ -11,6 +15,8 @@ import "time"
 // DomainCheckRequest checks availability for one or more domain names.
 type DomainCheckRequest struct {
 	Domains []string
+
+	Fee *fee.CheckRequest
 }
 
 // DomainCheckResponse contains the response for a domain check command.
@@ -18,6 +24,7 @@ type DomainCheckResponse struct {
 	Response
 
 	Results []DomainCheckResult
+	Fee     fee.CheckData
 }
 
 // DomainCheckResult contains availability data for one domain.
@@ -194,6 +201,8 @@ type DomainCreateRequest struct {
 	NameServerInfo []DomainNameServer
 
 	AuthInfo string
+
+	Fee *fee.TransformRequest
 }
 
 // DomainCreateResponse contains the response for a domain create command.
@@ -209,6 +218,8 @@ type DomainCreateResult struct {
 
 	CreatedDate time.Time
 	ExpiryDate  time.Time
+
+	Fee fee.TransformData
 }
 
 //
@@ -302,6 +313,8 @@ type DomainRenewRequest struct {
 	Period     int
 	Unit       string
 	PeriodInfo Period
+
+	Fee *fee.TransformRequest
 }
 
 // DomainRenewResponse contains the response for a domain renew command.
@@ -317,6 +330,8 @@ type DomainRenewResult struct {
 	DomainName string
 
 	NewExpiryDate time.Time
+
+	Fee fee.TransformData
 }
 
 //
@@ -337,6 +352,8 @@ type DomainTransferRequest struct {
 	PeriodInfo Period
 
 	AuthInfo string
+
+	Fee *fee.TransformRequest
 }
 
 // DomainTransferResponse contains the response for a domain transfer command.
@@ -352,6 +369,7 @@ type DomainTransferData struct {
 	TransferData
 
 	DomainName string
+	Fee        fee.TransformData
 }
 
 // DomainTransferResult contains compatibility fields for domain transfer responses.

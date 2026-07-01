@@ -1,6 +1,10 @@
 package epp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+)
 
 // ============================================================
 // DOMAIN RENEW REQUEST
@@ -16,8 +20,9 @@ type domainRenewRequestXML struct {
 }
 
 type domainRenewCommandXML struct {
-	Renew      domainRenewXML `xml:"renew"`
-	ClientTRID string         `xml:"clTRID"`
+	Renew      domainRenewXML                `xml:"renew"`
+	Extension  *feeext.TransformExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                        `xml:"clTRID"`
 }
 
 type domainRenewXML struct {
@@ -54,5 +59,9 @@ type domainRenewResponseXML struct {
 			ClientTRID string `xml:"clTRID"`
 			ServerTRID string `xml:"svTRID"`
 		} `xml:"trID"`
+
+		Extension struct {
+			FeeRenewData feeext.TransformDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 renData"`
+		} `xml:"extension"`
 	} `xml:"response"`
 }

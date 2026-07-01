@@ -1,6 +1,10 @@
 package epp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+)
 
 // ============================================================
 // DOMAIN TRANSFER REQUEST
@@ -16,8 +20,9 @@ type domainTransferRequestXML struct {
 }
 
 type domainTransferCommandXML struct {
-	Transfer   domainTransferXML `xml:"transfer"`
-	ClientTRID string            `xml:"clTRID"`
+	Transfer   domainTransferXML             `xml:"transfer"`
+	Extension  *feeext.TransformExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                        `xml:"clTRID"`
 }
 
 type domainTransferXML struct {
@@ -60,5 +65,9 @@ type domainTransferResponseXML struct {
 			ClientTRID string `xml:"clTRID"`
 			ServerTRID string `xml:"svTRID"`
 		} `xml:"trID"`
+
+		Extension struct {
+			FeeTransferData feeext.TransformDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 trnData"`
+		} `xml:"extension"`
 	} `xml:"response"`
 }

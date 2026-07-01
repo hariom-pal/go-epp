@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hariom-pal/go-epp/constants"
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -94,7 +95,7 @@ func (c *Client) DomainInfo(
 	info := response.Response.ResData.InfoData
 	rgpInfo := response.Response.Extension.RGPInfoData
 	secDNSInfo := response.Response.Extension.SecDNSInfoData
-	feeInfo := response.Response.Extension.FeeInfoData
+	feeInfo := feeext.InfoDataFromXML(response.Response.Extension.FeeInfoData)
 	launchInfo := response.Response.Extension.LaunchInfoData
 	idnInfo := response.Response.Extension.IDNInfoData
 
@@ -126,12 +127,10 @@ func (c *Client) DomainInfo(
 				KeyData:    make([]types.DomainKeyData, 0, len(secDNSInfo.KeyData)),
 			},
 			Fee: types.DomainFeeInfo{
-				Currency:    strings.TrimSpace(feeInfo.Currency),
-				Commands:    make([]types.DomainFeeCommand, 0, len(feeInfo.Commands)),
-				Fees:        make([]types.DomainFeeAmount, 0, len(feeInfo.Fees)),
-				Credits:     make([]types.DomainFeeAmount, 0, len(feeInfo.Credits)),
-				Balance:     strings.TrimSpace(feeInfo.Balance),
-				CreditLimit: strings.TrimSpace(feeInfo.CreditLimit),
+				Currency: strings.TrimSpace(feeInfo.Currency),
+				Commands: make([]types.DomainFeeCommand, 0, 1),
+				Fees:     make([]types.DomainFeeAmount, 0, len(feeInfo.Fees)),
+				Credits:  make([]types.DomainFeeAmount, 0, len(feeInfo.Credits)),
 			},
 			Launch: types.DomainLaunchInfo{
 				Phase:         strings.TrimSpace(launchInfo.Phase),
@@ -210,11 +209,11 @@ func (c *Client) DomainInfo(
 		})
 	}
 
-	for _, command := range feeInfo.Commands {
+	if feeInfo.Command.Name != "" {
 		resp.Result.Fee.Commands = append(resp.Result.Fee.Commands, types.DomainFeeCommand{
-			Name:     strings.TrimSpace(command.Name),
-			Phase:    command.Phase,
-			Subphase: command.Subphase,
+			Name:     feeInfo.Command.Name,
+			Phase:    feeInfo.Command.Phase,
+			Subphase: feeInfo.Command.Subphase,
 		})
 	}
 

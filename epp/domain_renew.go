@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hariom-pal/go-epp/constants"
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -73,6 +74,7 @@ func buildDomainRenewRequestXML(
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainRenewCommandXML{
 			ClientTRID: clientTRID,
+			Extension:  feeext.NewTransformExtension(feeext.CommandRenew, req.Fee),
 			Renew: domainRenewXML{
 				Domain: domainRenewObjectXML{
 					Name:              ascii,
@@ -138,6 +140,7 @@ func parseDomainRenewResponseXML(
 		Result: types.DomainRenewResult{
 			Domain:     unicode,
 			DomainName: unicode,
+			Fee:        feeext.TransformDataFromXML(response.Response.Extension.FeeRenewData),
 		},
 	}
 

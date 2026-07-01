@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -94,6 +95,7 @@ func buildDomainCreateRequestXML(
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainCreateCommandXML{
 			ClientTRID: clientTRID,
+			Extension:  feeext.NewTransformExtension(feeext.CommandCreate, req.Fee),
 			Create: domainCreateXML{
 				Domain: domainCreateObjectXML{
 					Name: ascii,
@@ -163,6 +165,7 @@ func parseDomainCreateResponseXML(
 		},
 		Result: types.DomainCreateResult{
 			Domain: unicode,
+			Fee:    feeext.TransformDataFromXML(response.Response.Extension.FeeCreateData),
 		},
 	}
 

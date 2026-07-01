@@ -1,6 +1,10 @@
 package epp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+)
 
 // ============================================================
 // DOMAIN CREATE REQUEST
@@ -16,8 +20,9 @@ type domainCreateRequestXML struct {
 }
 
 type domainCreateCommandXML struct {
-	Create     domainCreateXML `xml:"create"`
-	ClientTRID string          `xml:"clTRID"`
+	Create     domainCreateXML               `xml:"create"`
+	Extension  *feeext.TransformExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                        `xml:"clTRID"`
 }
 
 type domainCreateXML struct {
@@ -92,5 +97,9 @@ type domainCreateResponseXML struct {
 			ClientTRID string `xml:"clTRID"`
 			ServerTRID string `xml:"svTRID"`
 		} `xml:"trID"`
+
+		Extension struct {
+			FeeCreateData feeext.TransformDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 creData"`
+		} `xml:"extension"`
 	} `xml:"response"`
 }

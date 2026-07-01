@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -52,6 +53,7 @@ func (c *Client) DomainCheck(
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainCheckCommandXML{
 			ClientTRID: c.nextTRID("CHECK"),
+			Extension:  feeext.NewCheckExtension(req.Fee),
 			Check: domainCheckXML{
 				Domain: domainCheckNamesXML{
 					Names: names,
@@ -101,6 +103,7 @@ func (c *Client) DomainCheck(
 			ServerTRID: response.Response.TRID.ServerTRID,
 		},
 		Results: make([]types.DomainCheckResult, 0, len(response.Response.ResData.CheckData.CD)),
+		Fee:     feeext.CheckDataFromXML(response.Response.Extension.FeeCheckData),
 	}
 
 	for _, cd := range response.Response.ResData.CheckData.CD {

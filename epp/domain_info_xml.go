@@ -1,6 +1,10 @@
 package epp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+)
 
 // ============================================================
 // DOMAIN INFO REQUEST
@@ -124,28 +128,7 @@ type domainInfoResponseXML struct {
 				} `xml:"keyData"`
 			} `xml:"urn:ietf:params:xml:ns:secDNS-1.1 infData"`
 
-			FeeInfoData struct {
-				Currency string `xml:"currency"`
-				Commands []struct {
-					Name     string `xml:",chardata"`
-					Phase    string `xml:"phase,attr"`
-					Subphase string `xml:"subphase,attr"`
-				} `xml:"command"`
-				Fees []struct {
-					Amount      string `xml:",chardata"`
-					Description string `xml:"description,attr"`
-					Refundable  string `xml:"refundable,attr"`
-					GracePeriod string `xml:"grace-period,attr"`
-				} `xml:"fee"`
-				Credits []struct {
-					Amount      string `xml:",chardata"`
-					Description string `xml:"description,attr"`
-					Refundable  string `xml:"refundable,attr"`
-					GracePeriod string `xml:"grace-period,attr"`
-				} `xml:"credit"`
-				Balance     string `xml:"balance"`
-				CreditLimit string `xml:"creditLimit"`
-			} `xml:"urn:ietf:params:xml:ns:fee-0.7 infData"`
+			FeeInfoData feeext.InfoDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 infData"`
 
 			LaunchInfoData struct {
 				Phase  string `xml:"phase"`
