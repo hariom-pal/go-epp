@@ -25,3 +25,8 @@ type Phone struct {
 	Number    string
 	Extension string
 }
+
+type HostAddress struct {
+	IPVersion string
+	Address   string
+}

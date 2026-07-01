@@ -8,6 +8,7 @@ type cliOptions struct {
 	CheckDomains string
 
 	HostCheckNames []string
+	HostInfoName   string
 
 	ContactCheckIDs []string
 	ContactInfoID   string
@@ -70,6 +71,7 @@ func parseOptions() cliOptions {
 
 	flag.StringVar(&options.ConfigPath, "config", "configs/config.yaml", "path to config YAML")
 	flag.StringVar(&options.CheckDomains, "check", "", "comma-separated domains for domain check")
+	flag.StringVar(&options.HostInfoName, "host-info", "", "host name for host info")
 	flag.StringVar(&options.ContactInfoID, "contact-info", "", "contact ID for contact info")
 	flag.StringVar(&options.ContactCreateID, "contact-create", "", "contact ID for contact create")
 	flag.StringVar(&options.ContactCreateName, "contact-name", "", "international contact name for contact create")

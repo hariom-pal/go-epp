@@ -48,6 +48,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runHostInfo(client, options.HostInfoName); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runContactCheck(client, options.ContactCheckIDs); err != nil {
 		log.Fatal(err)
 	}

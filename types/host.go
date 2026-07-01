@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 //
 // ============================================================
 // HOST CHECK
@@ -22,4 +24,37 @@ type HostCheckResult struct {
 
 	Available bool
 	Reason    string
+}
+
+//
+// ============================================================
+// HOST INFO
+// ============================================================
+//
+
+type HostInfoRequest struct {
+	HostName string
+}
+
+type HostInfoResponse struct {
+	Response
+
+	Host HostInfo
+}
+
+type HostInfo struct {
+	HostName  string
+	ASCIIName string
+	ROID      string
+
+	Statuses  []string
+	Addresses []HostAddress
+
+	ClientID  string
+	CreatedBy string
+	UpdatedBy string
+
+	CreatedDate  time.Time
+	UpdatedDate  time.Time
+	TransferDate time.Time
 }
