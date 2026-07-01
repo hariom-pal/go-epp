@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
 
@@ -101,11 +102,7 @@ type domainInfoResponseXML struct {
 		} `xml:"trID"`
 
 		Extension struct {
-			RGPInfoData struct {
-				Statuses []struct {
-					Value string `xml:"s,attr"`
-				} `xml:"rgpStatus"`
-			} `xml:"urn:ietf:params:xml:ns:rgp-1.0 infData"`
+			RGPInfoData rgpext.InfoDataXML `xml:"urn:ietf:params:xml:ns:rgp-1.0 infData"`
 
 			SecDNSInfoData secdnsext.InfoDataXML `xml:"urn:ietf:params:xml:ns:secDNS-1.1 infData"`
 

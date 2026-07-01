@@ -7,10 +7,11 @@ The project is under active development and is preparing for a v1.0 architecture
 ## Features
 
 - TLS EPP session support using RFC5734 framing
-- Login and logout commands
+- Login, logout, hello, and poll commands
 - Domain check, info, create, update, renew, transfer, and delete
 - Contact check, info, create, update, and delete
 - Host check, info, create, update, and delete
+- Reusable fee, secDNS, and RGP extension packages
 - Unicode domain and host conversion through IDNA/Punycode
 - Structured response types with result codes and transaction IDs
 - Structured `epp.Error` values for registry errors
@@ -24,8 +25,11 @@ The project is under active development and is preparing for a v1.0 architecture
 - RFC5732: Host mapping
 - RFC5733: Contact mapping
 - RFC5734: TCP transport
+- RFC3915: Redemption Grace Period extension
+- RFC5910: DNSSEC secDNS extension
+- fee-0.7: Fee extension
 
-Extension namespaces are advertised at login where required by supported registries, but Poll, RGP, DNSSEC, Fee, and Launch command implementations are intentionally left for future packages.
+Extension namespaces are advertised at login where required by supported registries. Launch extension support is planned under `extensions/launch`.
 
 ## Installation
 

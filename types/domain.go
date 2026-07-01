@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/hariom-pal/go-epp/extensions/fee"
+	"github.com/hariom-pal/go-epp/extensions/rgp"
 	"github.com/hariom-pal/go-epp/extensions/secdns"
 )
 
@@ -75,6 +76,7 @@ type DomainInfoResult struct {
 	AuthInfo       string
 	AuthInfoROID   string
 	RGPStatuses    []string
+	RGP            rgp.InfoData
 	DNSSEC         DomainDNSSECInfo
 	SecDNS         secdns.InfoData
 	Fee            DomainFeeInfo
@@ -264,6 +266,8 @@ type DomainUpdateRequest struct {
 	RemoveBillingContacts []string
 
 	SecDNS *secdns.UpdateRequest
+
+	RGP *rgp.UpdateRequest
 }
 
 // DomainUpdateResponse contains the response for a domain update command.
@@ -276,6 +280,7 @@ type DomainUpdateResponse struct {
 // DomainUpdateResult contains domain update result data.
 type DomainUpdateResult struct {
 	Domain string
+	RGP    rgp.UpdateData
 }
 
 //

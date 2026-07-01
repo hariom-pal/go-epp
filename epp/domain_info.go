@@ -7,6 +7,7 @@ import (
 
 	"github.com/hariom-pal/go-epp/constants"
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
@@ -94,7 +95,7 @@ func (c *Client) DomainInfo(
 	}
 
 	info := response.Response.ResData.InfoData
-	rgpInfo := response.Response.Extension.RGPInfoData
+	rgpInfo := rgpext.InfoDataFromXML(response.Response.Extension.RGPInfoData)
 	secDNSInfo := secdnsext.InfoDataFromXML(response.Response.Extension.SecDNSInfoData)
 	feeInfo := feeext.InfoDataFromXML(response.Response.Extension.FeeInfoData)
 	launchInfo := response.Response.Extension.LaunchInfoData
@@ -122,6 +123,7 @@ func (c *Client) DomainInfo(
 			UpdatedBy:    info.UpdatedBy,
 			AuthInfo:     strings.TrimSpace(info.AuthInfo.Password.Value),
 			AuthInfoROID: info.AuthInfo.Password.ROID,
+			RGP:          rgpInfo,
 			DNSSEC: types.DomainDNSSECInfo{
 				MaxSigLife: secDNSInfo.MaxSigLife,
 				DSData:     make([]types.DomainDSData, 0, len(secDNSInfo.DSData)),
@@ -172,10 +174,7 @@ func (c *Client) DomainInfo(
 	}
 
 	for _, status := range rgpInfo.Statuses {
-		if status.Value == "" {
-			continue
-		}
-		resp.Result.RGPStatuses = append(resp.Result.RGPStatuses, status.Value)
+		resp.Result.RGPStatuses = append(resp.Result.RGPStatuses, status.Status)
 	}
 
 	for _, ds := range secDNSInfo.DSData {

@@ -3,6 +3,7 @@ package epp
 import (
 	"encoding/xml"
 
+	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
 
@@ -26,6 +27,7 @@ type domainUpdateCommandXML struct {
 }
 
 type domainUpdateExtensionXML struct {
+	RGPUpdate    *rgpext.UpdateXML    `xml:"rgp:update,omitempty"`
 	SecDNSUpdate *secdnsext.UpdateXML `xml:"secDNS:update,omitempty"`
 }
 
@@ -75,5 +77,9 @@ type domainUpdateResponseXML struct {
 			ClientTRID string `xml:"clTRID"`
 			ServerTRID string `xml:"svTRID"`
 		} `xml:"trID"`
+
+		Extension struct {
+			RGPUpdateData rgpext.UpdateDataXML `xml:"urn:ietf:params:xml:ns:rgp-1.0 upData"`
+		} `xml:"extension"`
 	} `xml:"response"`
 }

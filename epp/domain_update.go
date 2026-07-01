@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
+	rgpext "github.com/hariom-pal/go-epp/extensions/rgp"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
@@ -85,6 +86,13 @@ func buildDomainUpdateRequestXML(
 	change := domainUpdateChange(req)
 	extension := domainUpdateExtension(req)
 
+	if !rgpext.ValidUpdate(req.RGP) {
+		return "", nil, &Error{
+			Code:    constants.ResultParameterError,
+			Message: "invalid RGP update extension",
+		}
+	}
+
 	if !secdnsext.ValidUpdate(req.SecDNS) {
 		return "", nil, &Error{
 			Code:    constants.ResultParameterError,
@@ -114,7 +122,7 @@ func buildDomainUpdateRequestXML(
 					Name:   ascii,
 					Add:    add,
 					Remove: remove,
-					Change: change,
+					Change: domainUpdateChangeForExtension(change, add, remove, req),
 				},
 			},
 		},
@@ -138,14 +146,32 @@ func domainUpdateExtension(
 	req types.DomainUpdateRequest,
 ) *domainUpdateExtensionXML {
 
-	secDNSUpdate := secdnsext.NewUpdate(req.SecDNS)
-	if secDNSUpdate == nil {
+	extension := &domainUpdateExtensionXML{
+		RGPUpdate:    rgpext.NewUpdate(req.RGP),
+		SecDNSUpdate: secdnsext.NewUpdate(req.SecDNS),
+	}
+
+	if extension.RGPUpdate == nil &&
+		extension.SecDNSUpdate == nil {
+
 		return nil
 	}
 
-	return &domainUpdateExtensionXML{
-		SecDNSUpdate: secDNSUpdate,
+	return extension
+}
+
+func domainUpdateChangeForExtension(
+	change *domainUpdateChangeXML,
+	add *domainUpdateAddRemoveXML,
+	remove *domainUpdateAddRemoveXML,
+	req types.DomainUpdateRequest,
+) *domainUpdateChangeXML {
+
+	if change != nil || add != nil || remove != nil || req.RGP == nil {
+		return change
 	}
+
+	return &domainUpdateChangeXML{}
 }
 
 func parseDomainUpdateResponseXML(
@@ -170,6 +196,8 @@ func parseDomainUpdateResponseXML(
 		}
 	}
 
+	rgpUpdate := rgpext.UpdateDataFromXML(response.Response.Extension.RGPUpdateData)
+
 	return &types.DomainUpdateResponse{
 		Response: types.Response{
 			ResultCode: response.Response.Result.Code,
@@ -179,6 +207,7 @@ func parseDomainUpdateResponseXML(
 		},
 		Result: types.DomainUpdateResult{
 			Domain: domain,
+			RGP:    rgpUpdate,
 		},
 	}, nil
 }
