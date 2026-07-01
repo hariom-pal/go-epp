@@ -7,10 +7,10 @@ import (
 )
 
 type Error struct {
-	Code        int
-	Message     string
-	ClientTRID  string
-	ServerTRID  string
+	Code       int
+	Message    string
+	ClientTRID string
+	ServerTRID string
 }
 
 func (e *Error) Error() string {

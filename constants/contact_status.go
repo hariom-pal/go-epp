@@ -5,12 +5,12 @@ const (
 
 	ContactStatusLinked = "linked"
 
-	ContactStatusPendingCreate = "pendingCreate"
-	ContactStatusPendingDelete = "pendingDelete"
+	ContactStatusPendingCreate   = "pendingCreate"
+	ContactStatusPendingDelete   = "pendingDelete"
 	ContactStatusPendingTransfer = "pendingTransfer"
-	ContactStatusPendingUpdate = "pendingUpdate"
+	ContactStatusPendingUpdate   = "pendingUpdate"
 
-	ContactStatusClientDeleteProhibited = "clientDeleteProhibited"
+	ContactStatusClientDeleteProhibited   = "clientDeleteProhibited"
 	ContactStatusClientTransferProhibited = "clientTransferProhibited"
-	ContactStatusClientUpdateProhibited = "clientUpdateProhibited"
+	ContactStatusClientUpdateProhibited   = "clientUpdateProhibited"
 )

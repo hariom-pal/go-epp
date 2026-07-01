@@ -48,6 +48,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runContactInfo(client, options.ContactInfoID); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := runContactCreate(client, options); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := runContactUpdate(client, options); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runDomainCreate(client, options); err != nil {
 		log.Fatal(err)
 	}

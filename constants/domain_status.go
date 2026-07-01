@@ -5,23 +5,23 @@ const (
 
 	StatusInactive = "inactive"
 
-	StatusPendingCreate = "pendingCreate"
-	StatusPendingDelete = "pendingDelete"
-	StatusPendingRenew = "pendingRenew"
+	StatusPendingCreate   = "pendingCreate"
+	StatusPendingDelete   = "pendingDelete"
+	StatusPendingRenew    = "pendingRenew"
 	StatusPendingTransfer = "pendingTransfer"
-	StatusPendingUpdate = "pendingUpdate"
+	StatusPendingUpdate   = "pendingUpdate"
 
 	StatusClientHold = "clientHold"
 
-	StatusClientDeleteProhibited = "clientDeleteProhibited"
-	StatusClientRenewProhibited = "clientRenewProhibited"
+	StatusClientDeleteProhibited   = "clientDeleteProhibited"
+	StatusClientRenewProhibited    = "clientRenewProhibited"
 	StatusClientTransferProhibited = "clientTransferProhibited"
-	StatusClientUpdateProhibited = "clientUpdateProhibited"
+	StatusClientUpdateProhibited   = "clientUpdateProhibited"
 
 	StatusServerHold = "serverHold"
 
-	StatusServerDeleteProhibited = "serverDeleteProhibited"
-	StatusServerRenewProhibited = "serverRenewProhibited"
+	StatusServerDeleteProhibited   = "serverDeleteProhibited"
+	StatusServerRenewProhibited    = "serverRenewProhibited"
 	StatusServerTransferProhibited = "serverTransferProhibited"
-	StatusServerUpdateProhibited = "serverUpdateProhibited"
+	StatusServerUpdateProhibited   = "serverUpdateProhibited"
 )
