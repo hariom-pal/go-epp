@@ -57,3 +57,32 @@ type TransferData struct {
 
 	ExpiryDate time.Time
 }
+
+//
+// ============================================================
+// POLL
+// ============================================================
+//
+
+// PollRequest requests the next queued EPP service message or acknowledges one.
+type PollRequest struct {
+	Operation string
+	MessageID string
+}
+
+// PollResponse contains the response for an RFC5730 poll command.
+type PollResponse struct {
+	Response
+
+	ResultMessage string
+	MessageQueue  MessageQueue
+	Message       string
+}
+
+// MessageQueue contains RFC5730 message queue metadata and message text.
+type MessageQueue struct {
+	Count   int
+	ID      string
+	Date    *time.Time
+	Message string
+}

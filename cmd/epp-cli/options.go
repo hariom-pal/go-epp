@@ -5,6 +5,9 @@ import "flag"
 type cliOptions struct {
 	ConfigPath string
 
+	Poll      bool
+	PollAckID string
+
 	CheckDomains string
 
 	HostCheckNames           []string
@@ -114,6 +117,8 @@ func parseOptions() cliOptions {
 	var contactUpdateRemoveStatuses stringList
 
 	flag.StringVar(&options.ConfigPath, "config", "configs/config.yaml", "path to config YAML")
+	flag.BoolVar(&options.Poll, "poll", false, "request the next queued EPP message")
+	flag.StringVar(&options.PollAckID, "poll-ack", "", "message ID to acknowledge and dequeue")
 	flag.StringVar(&options.CheckDomains, "check", "", "comma-separated domains for domain check")
 	flag.StringVar(&options.HostCreateName, "host-create", "", "host name for host create")
 	flag.StringVar(&options.HostUpdateName, "host-update", "", "host name for host update")

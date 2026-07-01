@@ -40,6 +40,10 @@ func main() {
 
 	fmt.Println("Login Successful")
 
+	if err := runPoll(client, options); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runDomainCheck(client, options.CheckDomains); err != nil {
 		log.Fatal(err)
 	}

@@ -27,8 +27,7 @@ func (e *Error) Error() string {
 
 // IsSuccess reports whether the EPP result code is a success code.
 func (e *Error) IsSuccess() bool {
-	return e.Code == constants.ResultSuccess ||
-		e.Code == constants.ResultSuccessPending
+	return constants.IsSuccessResultCode(e.Code)
 }
 
 // IsObjectExists reports whether the error indicates an existing object.

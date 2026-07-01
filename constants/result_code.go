@@ -7,6 +7,12 @@ const (
 	// ResultSuccessPending indicates that the command completed but action is pending.
 	ResultSuccessPending = 1001
 
+	// ResultNoMessages indicates that the command completed and no messages are queued.
+	ResultNoMessages = 1300
+
+	// ResultAckToDequeue indicates that the command completed and a message is available.
+	ResultAckToDequeue = 1301
+
 	// ResultUnknownCommand indicates that the server does not recognize the command.
 	ResultUnknownCommand = 2000
 
@@ -34,3 +40,16 @@ const (
 	// ResultObjectStatusProhibits indicates the object's status prohibits the command.
 	ResultObjectStatusProhibits = 2304
 )
+
+// IsSuccessResultCode reports whether code is an EPP success result code.
+func IsSuccessResultCode(code int) bool {
+	switch code {
+	case ResultSuccess,
+		ResultSuccessPending,
+		ResultNoMessages,
+		ResultAckToDequeue:
+		return true
+	default:
+		return false
+	}
+}
