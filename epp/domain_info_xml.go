@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
 
 // ============================================================
@@ -106,27 +107,7 @@ type domainInfoResponseXML struct {
 				} `xml:"rgpStatus"`
 			} `xml:"urn:ietf:params:xml:ns:rgp-1.0 infData"`
 
-			SecDNSInfoData struct {
-				MaxSigLife int `xml:"maxSigLife"`
-				DSData     []struct {
-					KeyTag     int    `xml:"keyTag"`
-					Algorithm  int    `xml:"alg"`
-					DigestType int    `xml:"digestType"`
-					Digest     string `xml:"digest"`
-					KeyData    struct {
-						Flags     int    `xml:"flags"`
-						Protocol  int    `xml:"protocol"`
-						Algorithm int    `xml:"alg"`
-						PublicKey string `xml:"pubKey"`
-					} `xml:"keyData"`
-				} `xml:"dsData"`
-				KeyData []struct {
-					Flags     int    `xml:"flags"`
-					Protocol  int    `xml:"protocol"`
-					Algorithm int    `xml:"alg"`
-					PublicKey string `xml:"pubKey"`
-				} `xml:"keyData"`
-			} `xml:"urn:ietf:params:xml:ns:secDNS-1.1 infData"`
+			SecDNSInfoData secdnsext.InfoDataXML `xml:"urn:ietf:params:xml:ns:secDNS-1.1 infData"`
 
 			FeeInfoData feeext.InfoDataXML `xml:"urn:ietf:params:xml:ns:fee-0.7 infData"`
 

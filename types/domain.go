@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/hariom-pal/go-epp/extensions/fee"
+	"github.com/hariom-pal/go-epp/extensions/secdns"
 )
 
 //
@@ -75,6 +76,7 @@ type DomainInfoResult struct {
 	AuthInfoROID   string
 	RGPStatuses    []string
 	DNSSEC         DomainDNSSECInfo
+	SecDNS         secdns.InfoData
 	Fee            DomainFeeInfo
 	Launch         DomainLaunchInfo
 	IDN            DomainIDNInfo
@@ -203,6 +205,8 @@ type DomainCreateRequest struct {
 	AuthInfo string
 
 	Fee *fee.TransformRequest
+
+	SecDNS *secdns.CreateRequest
 }
 
 // DomainCreateResponse contains the response for a domain create command.
@@ -258,6 +262,8 @@ type DomainUpdateRequest struct {
 
 	AddBillingContacts    []string
 	RemoveBillingContacts []string
+
+	SecDNS *secdns.UpdateRequest
 }
 
 // DomainUpdateResponse contains the response for a domain update command.

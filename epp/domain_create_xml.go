@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
 
 // ============================================================
@@ -20,9 +21,14 @@ type domainCreateRequestXML struct {
 }
 
 type domainCreateCommandXML struct {
-	Create     domainCreateXML               `xml:"create"`
-	Extension  *feeext.TransformExtensionXML `xml:"extension,omitempty"`
-	ClientTRID string                        `xml:"clTRID"`
+	Create     domainCreateXML           `xml:"create"`
+	Extension  *domainCreateExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                    `xml:"clTRID"`
+}
+
+type domainCreateExtensionXML struct {
+	FeeCreate    *feeext.TransformXML `xml:"fee:create,omitempty"`
+	SecDNSCreate *secdnsext.CreateXML `xml:"secDNS:create,omitempty"`
 }
 
 type domainCreateXML struct {

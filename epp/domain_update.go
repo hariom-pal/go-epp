@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
+	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -82,10 +83,19 @@ func buildDomainUpdateRequestXML(
 	}
 
 	change := domainUpdateChange(req)
+	extension := domainUpdateExtension(req)
+
+	if !secdnsext.ValidUpdate(req.SecDNS) {
+		return "", nil, &Error{
+			Code:    constants.ResultParameterError,
+			Message: "invalid secDNS update extension",
+		}
+	}
 
 	if add == nil &&
 		remove == nil &&
-		change == nil {
+		change == nil &&
+		extension == nil {
 
 		return "", nil, &Error{
 			Code:    constants.ResultParameterError,
@@ -98,6 +108,7 @@ func buildDomainUpdateRequestXML(
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainUpdateCommandXML{
 			ClientTRID: clientTRID,
+			Extension:  extension,
 			Update: domainUpdateXML{
 				Domain: domainUpdateObjectXML{
 					Name:   ascii,
@@ -121,6 +132,20 @@ func buildDomainUpdateRequestXML(
 	requestXML = append([]byte(xml.Header), requestXML...)
 
 	return domain, requestXML, nil
+}
+
+func domainUpdateExtension(
+	req types.DomainUpdateRequest,
+) *domainUpdateExtensionXML {
+
+	secDNSUpdate := secdnsext.NewUpdate(req.SecDNS)
+	if secDNSUpdate == nil {
+		return nil
+	}
+
+	return &domainUpdateExtensionXML{
+		SecDNSUpdate: secDNSUpdate,
+	}
 }
 
 func parseDomainUpdateResponseXML(

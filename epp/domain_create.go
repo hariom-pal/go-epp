@@ -7,6 +7,7 @@ import (
 
 	"github.com/hariom-pal/go-epp/constants"
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -90,12 +91,19 @@ func buildDomainCreateRequestXML(
 		return nil, err
 	}
 
+	if !secdnsext.ValidCreate(req.SecDNS) {
+		return nil, &Error{
+			Code:    constants.ResultParameterError,
+			Message: "invalid secDNS create extension",
+		}
+	}
+
 	request := domainCreateRequestXML{
 		XMLNS:       constants.EPPNamespace,
 		DomainXMLNS: constants.DomainNamespace,
 		Command: domainCreateCommandXML{
 			ClientTRID: clientTRID,
-			Extension:  feeext.NewTransformExtension(feeext.CommandCreate, req.Fee),
+			Extension:  domainCreateExtension(req),
 			Create: domainCreateXML{
 				Domain: domainCreateObjectXML{
 					Name: ascii,
@@ -126,6 +134,27 @@ func buildDomainCreateRequestXML(
 	requestXML = append([]byte(xml.Header), requestXML...)
 
 	return requestXML, nil
+}
+
+func domainCreateExtension(
+	req types.DomainCreateRequest,
+) *domainCreateExtensionXML {
+
+	extension := &domainCreateExtensionXML{}
+
+	if feeExtension := feeext.NewTransformExtension(feeext.CommandCreate, req.Fee); feeExtension != nil {
+		extension.FeeCreate = feeExtension.Create
+	}
+
+	extension.SecDNSCreate = secdnsext.NewCreate(req.SecDNS)
+
+	if extension.FeeCreate == nil &&
+		extension.SecDNSCreate == nil {
+
+		return nil
+	}
+
+	return extension
 }
 
 func parseDomainCreateResponseXML(

@@ -1,6 +1,10 @@
 package epp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
+)
 
 // ============================================================
 // DOMAIN UPDATE REQUEST
@@ -16,8 +20,13 @@ type domainUpdateRequestXML struct {
 }
 
 type domainUpdateCommandXML struct {
-	Update     domainUpdateXML `xml:"update"`
-	ClientTRID string          `xml:"clTRID"`
+	Update     domainUpdateXML           `xml:"update"`
+	Extension  *domainUpdateExtensionXML `xml:"extension,omitempty"`
+	ClientTRID string                    `xml:"clTRID"`
+}
+
+type domainUpdateExtensionXML struct {
+	SecDNSUpdate *secdnsext.UpdateXML `xml:"secDNS:update,omitempty"`
 }
 
 type domainUpdateXML struct {

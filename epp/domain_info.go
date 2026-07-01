@@ -7,6 +7,7 @@ import (
 
 	"github.com/hariom-pal/go-epp/constants"
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
@@ -94,7 +95,7 @@ func (c *Client) DomainInfo(
 
 	info := response.Response.ResData.InfoData
 	rgpInfo := response.Response.Extension.RGPInfoData
-	secDNSInfo := response.Response.Extension.SecDNSInfoData
+	secDNSInfo := secdnsext.InfoDataFromXML(response.Response.Extension.SecDNSInfoData)
 	feeInfo := feeext.InfoDataFromXML(response.Response.Extension.FeeInfoData)
 	launchInfo := response.Response.Extension.LaunchInfoData
 	idnInfo := response.Response.Extension.IDNInfoData
@@ -126,6 +127,7 @@ func (c *Client) DomainInfo(
 				DSData:     make([]types.DomainDSData, 0, len(secDNSInfo.DSData)),
 				KeyData:    make([]types.DomainKeyData, 0, len(secDNSInfo.KeyData)),
 			},
+			SecDNS: secDNSInfo,
 			Fee: types.DomainFeeInfo{
 				Currency: strings.TrimSpace(feeInfo.Currency),
 				Commands: make([]types.DomainFeeCommand, 0, 1),
@@ -184,10 +186,11 @@ func (c *Client) DomainInfo(
 			Digest:     strings.TrimSpace(ds.Digest),
 		}
 
-		if ds.KeyData.PublicKey != "" ||
-			ds.KeyData.Flags != 0 ||
-			ds.KeyData.Protocol != 0 ||
-			ds.KeyData.Algorithm != 0 {
+		if ds.KeyData != nil &&
+			(ds.KeyData.PublicKey != "" ||
+				ds.KeyData.Flags != 0 ||
+				ds.KeyData.Protocol != 0 ||
+				ds.KeyData.Algorithm != 0) {
 
 			dsData.KeyData = &types.DomainKeyData{
 				Flags:     ds.KeyData.Flags,
