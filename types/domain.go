@@ -197,15 +197,25 @@ type DomainCreateResult struct {
 //
 
 type DomainUpdateRequest struct {
-	Domain string
+	Domain     string
+	DomainName string
 
+	Registrant    string
 	NewRegistrant string
+	AuthInfo      string
 
-	AddStatuses    []string
-	RemoveStatuses []string
+	AddStatuses      []string
+	RemoveStatuses   []string
+	AddStatusInfo    []DomainStatus
+	RemoveStatusInfo []DomainStatus
 
-	AddNameServers    []string
-	RemoveNameServers []string
+	AddNameServers       []string
+	RemoveNameServers    []string
+	AddNameServerInfo    []DomainNameServer
+	RemoveNameServerInfo []DomainNameServer
+
+	AddContacts    []DomainContact
+	RemoveContacts []DomainContact
 
 	AddAdminContacts    []string
 	RemoveAdminContacts []string
@@ -254,11 +264,14 @@ type DomainDeleteResult struct {
 //
 
 type DomainRenewRequest struct {
-	Domain string
+	Domain     string
+	DomainName string
 
 	CurrentExpiryDate time.Time
 
-	Period int
+	Period     int
+	Unit       string
+	PeriodInfo Period
 }
 
 type DomainRenewResponse struct {
@@ -268,9 +281,10 @@ type DomainRenewResponse struct {
 }
 
 type DomainRenewResult struct {
-	Domain string
+	Domain     string
+	DomainName string
 
-	NewExpiryDate *time.Time
+	NewExpiryDate time.Time
 }
 
 //

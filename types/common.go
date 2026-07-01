@@ -30,3 +30,8 @@ type HostAddress struct {
 	IPVersion string
 	Address   string
 }
+
+type Period struct {
+	Value int
+	Unit  string
+}

@@ -84,6 +84,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runDomainUpdate(client, options); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := runDomainRenew(client, options); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runDomainInfo(client, options.InfoDomain, options.InfoHosts); err != nil {
 		log.Fatal(err)
 	}

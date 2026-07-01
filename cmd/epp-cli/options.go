@@ -48,6 +48,19 @@ type cliOptions struct {
 	InfoDomain string
 	InfoHosts  string
 
+	DomainUpdateName              string
+	DomainUpdateAddNameServers    []string
+	DomainUpdateRemoveNameServers []string
+	DomainUpdateAddContacts       []string
+	DomainUpdateRemoveContacts    []string
+	DomainUpdateAddStatuses       []string
+	DomainUpdateRemoveStatuses    []string
+	DomainUpdateRegistrant        string
+	DomainUpdateAuthInfo          string
+
+	DomainRenewName              string
+	DomainRenewCurrentExpiryDate string
+
 	CreateDomain          string
 	CreatePeriod          int
 	CreateUnit            string
@@ -70,6 +83,12 @@ func parseOptions() cliOptions {
 	var hostCreateIPv4 stringList
 	var hostCreateIPv6 stringList
 	var contactCheckIDs stringList
+	var domainUpdateAddNameServers stringList
+	var domainUpdateRemoveNameServers stringList
+	var domainUpdateAddContacts stringList
+	var domainUpdateRemoveContacts stringList
+	var domainUpdateAddStatuses stringList
+	var domainUpdateRemoveStatuses stringList
 	var contactCreateStreets stringList
 	var contactCreateLocStreets stringList
 	var contactUpdateAddStatuses stringList
@@ -104,6 +123,11 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.ContactDeleteID, "contact-delete", "", "contact ID for contact delete")
 	flag.StringVar(&options.InfoDomain, "info", "", "domain for domain info")
 	flag.StringVar(&options.InfoHosts, "hosts", "", "domain info hosts value: all, del, sub, or none")
+	flag.StringVar(&options.DomainUpdateName, "domain-update", "", "domain name for domain update")
+	flag.StringVar(&options.DomainUpdateRegistrant, "domain-registrant", "", "new registrant for domain update")
+	flag.StringVar(&options.DomainUpdateAuthInfo, "domain-authInfo", "", "new authInfo password for domain update")
+	flag.StringVar(&options.DomainRenewName, "domain-renew", "", "domain name for domain renew")
+	flag.StringVar(&options.DomainRenewCurrentExpiryDate, "cur-expiry", "", "current expiry date for domain renew: YYYY-MM-DD")
 	flag.StringVar(&options.CreateDomain, "create", "", "domain for domain create")
 	flag.IntVar(&options.CreatePeriod, "period", 0, "registration period for domain create")
 	flag.StringVar(&options.CreateUnit, "unit", "y", "registration period unit for domain create: y or m")
@@ -118,6 +142,12 @@ func parseOptions() cliOptions {
 	flag.Var(&hostCreateIPv4, "ipv4", "IPv4 address for host create; may be repeated")
 	flag.Var(&hostCreateIPv6, "ipv6", "IPv6 address for host create; may be repeated")
 	flag.Var(&contactCheckIDs, "contact-check", "contact ID for contact check; may be repeated")
+	flag.Var(&domainUpdateAddNameServers, "domain-add-ns", "hostObj name server to add during domain update; may be repeated")
+	flag.Var(&domainUpdateRemoveNameServers, "domain-rem-ns", "hostObj name server to remove during domain update; may be repeated")
+	flag.Var(&domainUpdateAddContacts, "domain-add-contact", "domain contact to add as type:id; may be repeated")
+	flag.Var(&domainUpdateRemoveContacts, "domain-rem-contact", "domain contact to remove as type:id; may be repeated")
+	flag.Var(&domainUpdateAddStatuses, "domain-add-status", "domain status to add; may be repeated")
+	flag.Var(&domainUpdateRemoveStatuses, "domain-rem-status", "domain status to remove; may be repeated")
 	flag.Var(&contactCreateStreets, "contact-street", "international contact street for contact create; may be repeated")
 	flag.Var(&contactCreateLocStreets, "contact-loc-street", "localized contact street for contact create; may be repeated")
 	flag.Var(&contactUpdateAddStatuses, "contact-add-status", "contact status to add during contact update; may be repeated")
@@ -128,6 +158,12 @@ func parseOptions() cliOptions {
 	options.HostCreateIPv4 = []string(hostCreateIPv4)
 	options.HostCreateIPv6 = []string(hostCreateIPv6)
 	options.ContactCheckIDs = []string(contactCheckIDs)
+	options.DomainUpdateAddNameServers = []string(domainUpdateAddNameServers)
+	options.DomainUpdateRemoveNameServers = []string(domainUpdateRemoveNameServers)
+	options.DomainUpdateAddContacts = []string(domainUpdateAddContacts)
+	options.DomainUpdateRemoveContacts = []string(domainUpdateRemoveContacts)
+	options.DomainUpdateAddStatuses = []string(domainUpdateAddStatuses)
+	options.DomainUpdateRemoveStatuses = []string(domainUpdateRemoveStatuses)
 	options.ContactCreateStreets = []string(contactCreateStreets)
 	options.ContactCreateLocStreets = []string(contactCreateLocStreets)
 	options.ContactUpdateAddStatuses = []string(contactUpdateAddStatuses)
