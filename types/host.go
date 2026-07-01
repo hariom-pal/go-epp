@@ -82,3 +82,17 @@ type HostCreateResult struct {
 
 	CreatedDate time.Time
 }
+
+//
+// ============================================================
+// HOST DELETE
+// ============================================================
+//
+
+type HostDeleteRequest struct {
+	HostName string
+}
+
+type HostDeleteResponse struct {
+	Response
+}

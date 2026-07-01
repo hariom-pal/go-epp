@@ -12,6 +12,7 @@ type cliOptions struct {
 	HostCreateName string
 	HostCreateIPv4 []string
 	HostCreateIPv6 []string
+	HostDeleteName string
 
 	ContactCheckIDs []string
 	ContactInfoID   string
@@ -77,6 +78,7 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.ConfigPath, "config", "configs/config.yaml", "path to config YAML")
 	flag.StringVar(&options.CheckDomains, "check", "", "comma-separated domains for domain check")
 	flag.StringVar(&options.HostCreateName, "host-create", "", "host name for host create")
+	flag.StringVar(&options.HostDeleteName, "host-delete", "", "host name for host delete")
 	flag.StringVar(&options.HostInfoName, "host-info", "", "host name for host info")
 	flag.StringVar(&options.ContactInfoID, "contact-info", "", "contact ID for contact info")
 	flag.StringVar(&options.ContactCreateID, "contact-create", "", "contact ID for contact create")
