@@ -6,26 +6,51 @@ import "github.com/hariom-pal/go-epp/constants"
 const Namespace = constants.LaunchNamespace
 
 const (
-	PhaseSunrise  = "sunrise"
+	// PhaseSunrise identifies the trademark-holder sunrise launch phase.
+	PhaseSunrise = "sunrise"
+
+	// PhaseLandrush identifies a high-volume pre-open launch phase.
 	PhaseLandrush = "landrush"
-	PhaseClaims   = "claims"
-	PhaseOpen     = "open"
-	PhaseCustom   = "custom"
+
+	// PhaseClaims identifies the trademark claims launch phase.
+	PhaseClaims = "claims"
+
+	// PhaseOpen identifies the steady-state/open launch phase.
+	PhaseOpen = "open"
+
+	// PhaseCustom identifies a server-defined launch phase using Phase.Name.
+	PhaseCustom = "custom"
 )
 
 const (
-	ObjectApplication  = "application"
+	// ObjectApplication requests creation of a launch application.
+	ObjectApplication = "application"
+
+	// ObjectRegistration requests creation of a launch registration.
 	ObjectRegistration = "registration"
 )
 
 const (
+	// StatusPendingValidation indicates that application validation is pending.
 	StatusPendingValidation = "pendingValidation"
-	StatusValidated         = "validated"
-	StatusInvalid           = "invalid"
+
+	// StatusValidated indicates that an application was validated.
+	StatusValidated = "validated"
+
+	// StatusInvalid indicates that an application failed validation.
+	StatusInvalid = "invalid"
+
+	// StatusPendingAllocation indicates that allocation is pending.
 	StatusPendingAllocation = "pendingAllocation"
-	StatusAllocated         = "allocated"
-	StatusRejected          = "rejected"
-	StatusCustom            = "custom"
+
+	// StatusAllocated indicates that an application was allocated.
+	StatusAllocated = "allocated"
+
+	// StatusRejected indicates that an application was rejected.
+	StatusRejected = "rejected"
+
+	// StatusCustom identifies a server-defined launch status using Status.Name.
+	StatusCustom = "custom"
 )
 
 // Phase identifies a launch phase and optional sub-phase/name.

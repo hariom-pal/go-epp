@@ -14,13 +14,26 @@ const (
 )
 
 const (
-	StatusAddPeriod       = "addPeriod"
+	// StatusAddPeriod identifies the add grace period.
+	StatusAddPeriod = "addPeriod"
+
+	// StatusAutoRenewPeriod identifies the auto-renew grace period.
 	StatusAutoRenewPeriod = "autoRenewPeriod"
-	StatusRenewPeriod     = "renewPeriod"
-	StatusTransferPeriod  = "transferPeriod"
-	StatusPendingDelete   = "pendingDelete"
-	StatusPendingRestore  = "pendingRestore"
-	StatusRedemption      = "redemptionPeriod"
+
+	// StatusRenewPeriod identifies the renew grace period.
+	StatusRenewPeriod = "renewPeriod"
+
+	// StatusTransferPeriod identifies the transfer grace period.
+	StatusTransferPeriod = "transferPeriod"
+
+	// StatusPendingDelete identifies a domain pending deletion.
+	StatusPendingDelete = "pendingDelete"
+
+	// StatusPendingRestore identifies a restore request awaiting report or completion.
+	StatusPendingRestore = "pendingRestore"
+
+	// StatusRedemption identifies the redemption grace period.
+	StatusRedemption = "redemptionPeriod"
 )
 
 // UpdateRequest contains an RFC3915 restore update extension.

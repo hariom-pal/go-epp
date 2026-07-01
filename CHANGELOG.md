@@ -8,6 +8,7 @@ The format follows Keep a Changelog, and this project aims to use semantic versi
 
 ### Added
 
+- Release-readiness documentation, issue templates, support files, lint configuration, examples, and benchmarks.
 - RFC5730 poll request and acknowledge support.
 - RFC5730 hello support using the shared greeting parser.
 - fee-0.7 reusable extension package.

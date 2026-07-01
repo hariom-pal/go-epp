@@ -1,33 +1,73 @@
 # Architecture
 
-`go-epp` keeps the EPP core protocol and optional registry extensions separate.
+`go-epp` separates the stable EPP protocol core from optional registry extensions. The goal is to keep the SDK predictable for v1.0 while still supporting registries with different extension sets.
 
 ## Package Layout
 
-- `epp/` contains core RFC5730-RFC5734 command implementations, XML request/response models, transport execution, and parsing glue.
-- `types/` contains public SDK request and response types.
-- `constants/` contains protocol constants, result codes, statuses, namespaces, and reusable validation helpers.
-- `extensions/` contains optional EPP extension packages. Extension packages expose reusable request, response, and XML builders without owning transport execution.
-- `cmd/epp-cli/` contains the operational CLI used for registry testing.
-- `test/` contains integration-style XML generation, parsing, and validation tests using a local TLS EPP server.
+- `epp/`: RFC5730-RFC5734 commands, XML request/response models, TRID generation, `Execute`, session handling, and RFC5734 framing.
+- `types/`: public request and response structs used by applications.
+- `constants/`: result codes, statuses, transfer operations, object constants, and XML namespaces.
+- `extensions/`: optional reusable extension packages.
+- `cmd/epp-cli/`: operational CLI for OT&E and smoke testing.
+- `examples/`: compile-checked library usage examples.
+- `test/`: integration-style tests using a local TLS EPP server.
 
 ## Extension Boundary
 
-Extension packages are intentionally outside `epp/`.
+Extension code lives under `extensions/`, not under `epp/`.
 
-The core `epp` package remains focused on standard EPP operations. Optional registry features such as fee, secDNS, RGP, and launch live under `extensions/` and are attached to core commands only when requested by public request types.
+```text
+epp/
+  core commands and transport
 
-This keeps the stable core small while allowing registries to support different extension sets.
+extensions/
+  common/
+  fee/
+  launch/
+  rgp/
+  secdns/
+```
+
+The `epp` package attaches extension XML only when a public request contains extension data. This preserves existing behavior for SDK users who only use core RFC5730-RFC5734 commands.
 
 ## Request Flow
 
-1. Public request types are passed to a client method such as `DomainCreate`, `DomainUpdate`, or `DomainInfo`.
-2. The `epp` package validates core command inputs.
-3. Optional extension builders validate and render their own XML models.
-4. The command is serialized with `encoding/xml`.
-5. `Execute` sends the framed EPP command and returns the response XML.
-6. Response XML is parsed into internal XML models and converted into public response types.
+```text
+types.DomainCreateRequest
+        |
+        v
+epp.DomainCreate
+        |
+        +-- core validation
+        +-- optional extension validation
+        +-- XML marshal
+        |
+        v
+epp.Execute
+        |
+        +-- WriteFrame
+        +-- ReadFrame
+        |
+        v
+parse XML response into public response types
+```
 
-## Compatibility
+## Response Flow
 
-Public APIs should remain backward compatible. When a reusable extension model supersedes an older convenience field, both should be populated when practical. For example, domain info exposes structured `RGP` data while retaining legacy `RGPStatuses`.
+1. XML response is unmarshaled into internal XML structs.
+2. EPP result codes are checked.
+3. Registry errors are returned as `*epp.Error`.
+4. Successful responses are converted into public `types` models.
+5. Extension data is parsed by its owning extension package.
+
+## Compatibility Policy
+
+The v1.0 API should avoid breaking changes. Additive fields are preferred over replacements. Compatibility fields remain populated when structured extension models are introduced; for example, `DomainInfoResult.RGPStatuses` remains populated alongside `DomainInfoResult.RGP`.
+
+## Operational Guidance
+
+- Reuse a client for one EPP session.
+- Login before issuing commands that require authentication.
+- Logout and close the connection when finished.
+- Send extension XML only when the registry supports the namespace and policy.
+- Treat registry policy as application-level configuration, not SDK behavior.

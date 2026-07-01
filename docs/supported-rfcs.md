@@ -1,22 +1,31 @@
 # Supported RFCs
 
-This document tracks protocol coverage for the SDK.
+This document tracks protocol and extension coverage.
 
-## Core EPP
+## Core Protocol
 
-- RFC5730: EPP core, login, logout, hello, poll, transaction IDs, results, and errors.
-- RFC5731: Domain check, info, create, update, delete, renew, and transfer.
-- RFC5732: Host check, info, create, update, and delete.
-- RFC5733: Contact check, info, create, update, and delete.
-- RFC5734: TCP transport framing over TLS.
+| Specification | Coverage |
+| --- | --- |
+| RFC5730 | Core EPP envelope, login, logout, hello, poll, result handling, TRID handling |
+| RFC5731 | Domain check, info, create, update, delete, renew, transfer |
+| RFC5732 | Host check, info, create, update, delete |
+| RFC5733 | Contact check, info, create, update, delete |
+| RFC5734 | TCP transport framing over TLS |
 
 ## Extensions
 
-- RFC3915: Redemption Grace Period extension under `extensions/rgp`.
-- RFC5910: DNSSEC secDNS-1.1 extension under `extensions/secdns`.
-- RFC8334: Launch Phase Mapping extension under `extensions/launch`.
-- fee-0.7: Fee extension under `extensions/fee`.
+| Specification | Package | Coverage |
+| --- | --- | --- |
+| fee-0.7 | `extensions/fee` | Fee check and transform request/response models |
+| RFC3915 | `extensions/rgp` | RGP info parsing and restore request/report update extension |
+| RFC5910 | `extensions/secdns` | secDNS create, update, and info DS/key data models |
+| RFC8334 | `extensions/launch` | Launch create, info, update, delete, application ID, notice, code mark, status models |
 
-## Notes
+## Non-Goals
 
-The SDK aims to implement registry-independent RFC models. Registry-specific policy, pricing, validation, and operational rules should live in application code or registry adapters, not in the core SDK.
+- Registry-specific pricing policy.
+- Registry-specific launch policy.
+- Registry-specific DNSSEC algorithm restrictions.
+- Registry adapters that hardcode individual registry quirks.
+
+Those concerns should live in application code or optional adapter packages.

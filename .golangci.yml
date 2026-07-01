@@ -14,6 +14,7 @@ linters:
     - ineffassign
     - misspell
     - nilerr
+    - revive
     - staticcheck
     - unconvert
     - unused
@@ -22,6 +23,11 @@ linters:
     errcheck:
       check-type-assertions: true
       check-blank: false
+    revive:
+      rules:
+        - name: exported
+          severity: warning
+          disabled: false
   exclusions:
     generated: lax
     presets:
@@ -38,3 +44,7 @@ formatters:
   enable:
     - gofmt
     - goimports
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

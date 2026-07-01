@@ -1,37 +1,45 @@
 # Registry Compatibility
 
-`go-epp` is designed as a registry-independent SDK. It implements EPP protocol and extension models, while leaving registry policy choices to callers.
+`go-epp` is registry independent. It implements EPP commands and extension XML models but does not hardcode registry policy.
 
-## Compatibility Model
+## Registry Differences
 
-Registries differ in supported extensions, command policies, grace-period windows, fee behavior, IDN tables, launch phases, and validation rules. The SDK therefore keeps request models generic and avoids hardcoding registry-specific behavior.
+Registries commonly differ in:
 
-## Extension Use
+- advertised extension namespaces;
+- required login service extensions;
+- contact requirements;
+- host object vs host attribute policy;
+- IDN table policy;
+- fee currency and command policy;
+- secDNS DS-data vs key-data interface policy;
+- RGP restore report validation;
+- launch phases, application behavior, and claims notice rules.
 
-Optional extension requests are attached only when the caller supplies extension data:
+## Recommended Integration Process
 
-- Fee extension data is optional for supported domain operations.
-- secDNS data is optional for domain create, update, and info parsing.
-- RGP data is optional for domain info parsing and domain update restore operations.
+1. Connect to the registry OT&E environment.
+2. Inspect the greeting and supported extension namespaces.
+3. Login with the service extensions required by the registry.
+4. Use the CLI to run smoke tests for check/info commands.
+5. Validate create/update/delete XML in OT&E before production.
+6. Capture registry-specific rules in application configuration or adapter code.
 
-If a registry does not advertise or support an extension namespace, callers should not send that extension.
+## Extension Guidelines
 
-## Testing Against Registries
+- Do not send an extension unless the registry supports it.
+- Do not assume a registry supports all fields in an RFC-defined extension.
+- Prefer registry documentation over inferred behavior.
+- Keep registry-specific workarounds outside the core SDK.
 
-Use the CLI against OT&E environments before production use. Confirm:
+## Compatibility Issue Reports
 
-- Advertised extension namespaces in the greeting.
-- Required login service extensions.
-- Domain/contact/host object policy.
-- Required contacts and name server formats.
-- Extension-specific policy such as fee commands, DNSSEC interface choice, and RGP restore report requirements.
+When reporting a compatibility issue, include:
 
-## Reporting Compatibility Issues
-
-When reporting a registry compatibility issue, include:
-
-- Registry name and environment, if shareable.
-- Command XML with credentials removed.
-- Response XML with sensitive values removed.
-- Expected behavior and actual behavior.
-- Any registry documentation that describes the required behavior.
+- registry name and environment, if shareable;
+- SDK version or commit;
+- redacted command XML;
+- redacted response XML;
+- expected behavior;
+- actual behavior;
+- relevant registry documentation.
