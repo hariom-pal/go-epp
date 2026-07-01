@@ -294,11 +294,14 @@ type DomainRenewResult struct {
 //
 
 type DomainTransferRequest struct {
-	Domain string
+	Domain     string
+	DomainName string
 
 	Operation string
 
-	Period int
+	Period     int
+	Unit       string
+	PeriodInfo Period
 
 	AuthInfo string
 }
@@ -306,12 +309,20 @@ type DomainTransferRequest struct {
 type DomainTransferResponse struct {
 	Response
 
-	Result DomainTransferResult
+	TransferData DomainTransferData
+	Result       DomainTransferResult
+}
+
+type DomainTransferData struct {
+	TransferData
+
+	DomainName string
 }
 
 type DomainTransferResult struct {
-	Domain string
+	DomainTransferData
 
+	Domain string
 	Status string
 }
 

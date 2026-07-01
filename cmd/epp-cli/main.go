@@ -92,6 +92,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runDomainTransfer(client, options); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runDomainInfo(client, options.InfoDomain, options.InfoHosts); err != nil {
 		log.Fatal(err)
 	}

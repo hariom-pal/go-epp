@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type Response struct {
 	ResultCode int
 	ResultMsg  string
@@ -34,4 +36,18 @@ type HostAddress struct {
 type Period struct {
 	Value int
 	Unit  string
+}
+
+type TransferData struct {
+	ObjectName string
+
+	TransferStatus string
+
+	RequestedBy   string
+	RequestedDate time.Time
+
+	ActionBy   string
+	ActionDate time.Time
+
+	ExpiryDate time.Time
 }

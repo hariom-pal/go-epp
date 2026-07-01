@@ -11,3 +11,20 @@ const (
 
 	TransferCancel = "cancel"
 )
+
+func IsTransferOperation(
+	operation string,
+) bool {
+
+	switch operation {
+	case TransferQuery,
+		TransferRequest,
+		TransferApprove,
+		TransferReject,
+		TransferCancel:
+
+		return true
+	default:
+		return false
+	}
+}

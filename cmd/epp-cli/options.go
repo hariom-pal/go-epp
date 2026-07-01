@@ -61,6 +61,9 @@ type cliOptions struct {
 	DomainRenewName              string
 	DomainRenewCurrentExpiryDate string
 
+	DomainTransferName      string
+	DomainTransferOperation string
+
 	CreateDomain          string
 	CreatePeriod          int
 	CreateUnit            string
@@ -128,6 +131,8 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.DomainUpdateAuthInfo, "domain-authInfo", "", "new authInfo password for domain update")
 	flag.StringVar(&options.DomainRenewName, "domain-renew", "", "domain name for domain renew")
 	flag.StringVar(&options.DomainRenewCurrentExpiryDate, "cur-expiry", "", "current expiry date for domain renew: YYYY-MM-DD")
+	flag.StringVar(&options.DomainTransferName, "domain-transfer", "", "domain name for domain transfer")
+	flag.StringVar(&options.DomainTransferOperation, "op", "", "transfer operation: query, request, approve, cancel, or reject")
 	flag.StringVar(&options.CreateDomain, "create", "", "domain for domain create")
 	flag.IntVar(&options.CreatePeriod, "period", 0, "registration period for domain create")
 	flag.StringVar(&options.CreateUnit, "unit", "y", "registration period unit for domain create: y or m")
