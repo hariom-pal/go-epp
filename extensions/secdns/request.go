@@ -40,7 +40,8 @@ func ValidUpdate(req *UpdateRequest) bool {
 		hasKeyData = hasKeyData || len(req.Remove.KeyData) > 0
 	}
 
-	return !(hasDSData && hasKeyData)
+	//return !(hasDSData && hasKeyData)
+	return !hasDSData || !hasKeyData
 }
 
 // NewCreate returns a secDNS create extension, or nil when req is nil or empty.
