@@ -91,6 +91,25 @@ func BenchmarkDomainCheck(b *testing.B) {
 	}
 }
 
+func BenchmarkDomainInfo(b *testing.B) {
+	responseFrame := benchmarkFrame([]byte(benchmarkDomainInfoResponseXML))
+	client := &Client{
+		conn: &cyclicResponseConn{
+			response: responseFrame,
+		},
+	}
+	req := types.DomainInfoRequest{
+		Domain: "example.com",
+	}
+
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		if _, err := client.DomainInfo(req); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func benchmarkFrame(payload []byte) []byte {
 	frame := make([]byte, len(payload)+eppFrameHeaderLength)
 	binary.BigEndian.PutUint32(frame[:eppFrameHeaderLength], uint32(len(frame)))
@@ -168,6 +187,39 @@ const benchmarkDomainCheckResponseXML = `<?xml version="1.0" encoding="UTF-8"?>
         </resData>
         <trID>
             <clTRID>CHECK-BENCH</clTRID>
+            <svTRID>SERVER-BENCH</svTRID>
+        </trID>
+    </response>
+</epp>`
+
+const benchmarkDomainInfoResponseXML = `<?xml version="1.0" encoding="UTF-8"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+    <response>
+        <result code="1000">
+            <msg>Command completed successfully</msg>
+        </result>
+        <resData>
+            <domain:infData xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+                <domain:name>example.com</domain:name>
+                <domain:roid>EXAMPLE1-REP</domain:roid>
+                <domain:status s="ok"/>
+                <domain:registrant>CONTACT-1</domain:registrant>
+                <domain:contact type="admin">CONTACT-2</domain:contact>
+                <domain:ns>
+                    <domain:hostObj>ns1.example.com</domain:hostObj>
+                    <domain:hostObj>ns2.example.com</domain:hostObj>
+                </domain:ns>
+                <domain:clID>REGISTRAR</domain:clID>
+                <domain:crID>REGISTRAR</domain:crID>
+                <domain:crDate>2026-01-01T00:00:00Z</domain:crDate>
+                <domain:exDate>2027-01-01T00:00:00Z</domain:exDate>
+                <domain:authInfo>
+                    <domain:pw>secret</domain:pw>
+                </domain:authInfo>
+            </domain:infData>
+        </resData>
+        <trID>
+            <clTRID>INFO-BENCH</clTRID>
             <svTRID>SERVER-BENCH</svTRID>
         </trID>
     </response>
