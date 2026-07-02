@@ -10,7 +10,8 @@
 - `extensions/`: optional reusable extension packages.
 - `cmd/epp-cli/`: operational CLI for OT&E and smoke testing.
 - `examples/`: compile-checked library usage examples.
-- `test/`: integration-style tests using a local TLS EPP server.
+- `test/integration/`: wire-level tests using a local TLS EPP server.
+- `test/unit/`: focused unit tests for validation and small helpers.
 
 ## Extension Boundary
 

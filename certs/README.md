@@ -1,4 +1,4 @@
-# NIXI EPP Certificates
+# EPP Client Certificates
 
 Place your registry-issued TLS certificates in this directory.
 

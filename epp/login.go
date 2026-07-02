@@ -1,60 +1,89 @@
 package epp
 
 import (
-	"fmt"
+	"encoding/xml"
+
+	"github.com/hariom-pal/go-epp/constants"
 )
 
 // Login sends an EPP login command using the client's configured credentials.
 func (c *Client) Login() error {
 
-	trID := c.nextTRID("LOGIN")
+	request := loginRequestXML{
+		XMLNS: constants.EPPNamespace,
+		Command: loginCommandXML{
+			Login: loginXML{
+				ClientID: c.config.Authentication.Username,
+				Password: c.config.Authentication.Password,
+				Options: loginOptionsXML{
+					Version: "1.0",
+					Lang:    "en",
+				},
+				Services: loginServicesXML{
+					ObjectURIs: []string{
+						constants.DomainNamespace,
+						constants.ContactNamespace,
+						constants.HostNamespace,
+					},
+					ServiceExtension: loginServiceExtensionXML{
+						ExtensionURIs: []string{
+							constants.SecDNSNamespace,
+							constants.RGPNamespace,
+							constants.IDNNamespace,
+							constants.FeeNamespace,
+							constants.LaunchNamespace,
+						},
+					},
+				},
+			},
+			ClientTRID: c.nextTRID("LOGIN"),
+		},
+	}
 
-	loginXML := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
-    <command>
-        <login>
-            <clID>%s</clID>
-            <pw>%s</pw>
-
-            <options>
-                <version>1.0</version>
-                <lang>en</lang>
-            </options>
-
-            <svcs>
-                <objURI>urn:ietf:params:xml:ns:domain-1.0</objURI>
-                <objURI>urn:ietf:params:xml:ns:contact-1.0</objURI>
-                <objURI>urn:ietf:params:xml:ns:host-1.0</objURI>
-
-                <svcExtension>
-                    <extURI>urn:ietf:params:xml:ns:secDNS-1.1</extURI>
-                    <extURI>urn:ietf:params:xml:ns:rgp-1.0</extURI>
-                    <extURI>urn:ietf:params:xml:ns:idn-1.0</extURI>
-                    <extURI>urn:ietf:params:xml:ns:fee-0.7</extURI>
-                    <extURI>urn:ietf:params:xml:ns:launch-1.0</extURI>
-                </svcExtension>
-
-            </svcs>
-
-        </login>
-
-        <clTRID>%s</clTRID>
-
-    </command>
-</epp>`,
-		c.config.Authentication.Username,
-		c.config.Authentication.Password,
-		trID,
-	)
-
-	response, err := c.Execute([]byte(loginXML))
+	loginXML, err := xml.MarshalIndent(request, "", "    ")
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("========== LOGIN RESPONSE ==========")
-	fmt.Println(string(response))
-	fmt.Println("====================================")
+	loginXML = append([]byte(xml.Header), loginXML...)
 
-	return nil
+	response, err := c.Execute(loginXML)
+	if err != nil {
+		return err
+	}
+
+	return parseCommandResponse(response)
+}
+
+type loginRequestXML struct {
+	XMLName xml.Name `xml:"epp"`
+	XMLNS   string   `xml:"xmlns,attr"`
+
+	Command loginCommandXML `xml:"command"`
+}
+
+type loginCommandXML struct {
+	Login      loginXML `xml:"login"`
+	ClientTRID string   `xml:"clTRID"`
+}
+
+type loginXML struct {
+	ClientID string           `xml:"clID"`
+	Password string           `xml:"pw"`
+	Options  loginOptionsXML  `xml:"options"`
+	Services loginServicesXML `xml:"svcs"`
+}
+
+type loginOptionsXML struct {
+	Version string `xml:"version"`
+	Lang    string `xml:"lang"`
+}
+
+type loginServicesXML struct {
+	ObjectURIs       []string                 `xml:"objURI"`
+	ServiceExtension loginServiceExtensionXML `xml:"svcExtension"`
+}
+
+type loginServiceExtensionXML struct {
+	ExtensionURIs []string `xml:"extURI"`
 }

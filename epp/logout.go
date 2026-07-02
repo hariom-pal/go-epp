@@ -2,29 +2,25 @@ package epp
 
 import (
 	"fmt"
+
+	"github.com/hariom-pal/go-epp/constants"
 )
 
 // Logout sends an EPP logout command.
 func (c *Client) Logout() error {
 
-	trID := c.nextTRID("LOGOUT")
-
 	logoutXML := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
-<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+<epp xmlns="%s">
     <command>
         <logout/>
         <clTRID>%s</clTRID>
     </command>
-</epp>`, trID)
+</epp>`, constants.EPPNamespace, c.nextTRID("LOGOUT"))
 
 	response, err := c.Execute([]byte(logoutXML))
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("========== LOGOUT RESPONSE ==========")
-	fmt.Println(string(response))
-	fmt.Println("=====================================")
-
-	return nil
+	return parseCommandResponse(response)
 }

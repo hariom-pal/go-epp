@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net"
 	"strings"
 	"testing"
@@ -129,6 +130,53 @@ func TestLoginAndLogout(t *testing.T) {
 	assertContains(t, logoutXML, `<clTRID>LOGOUT-`)
 }
 
+func TestLoginEscapesCredentials(t *testing.T) {
+	cfg, requests, cleanup := startSequentialEPPServer(t, []string{
+		simpleEPPResponse("LOGIN-TEST", "SERVER-LOGIN"),
+	})
+	defer cleanup()
+
+	cfg.Authentication = config.AuthenticationConfig{
+		Username: `ote-user&<"`,
+		Password: `p&ss<word>`,
+	}
+
+	client, err := epp.Connect(cfg)
+	if err != nil {
+		t.Fatalf("connect failed: %v", err)
+	}
+	defer client.Close()
+
+	if err := client.Login(); err != nil {
+		t.Fatalf("login failed: %v", err)
+	}
+
+	loginXML := readRequest(t, requests)
+	assertContains(t, loginXML, `<clID>ote-user&amp;&lt;&#34;</clID>`)
+	assertContains(t, loginXML, `<pw>p&amp;ss&lt;word&gt;</pw>`)
+}
+
+func TestLoginReturnsEPPError(t *testing.T) {
+	cfg, _, cleanup := startSequentialEPPServer(t, []string{
+		eppErrorResponse(constants.ResultAuthenticationError, "Authentication failed", "LOGIN-TEST", "SERVER-LOGIN"),
+	})
+	defer cleanup()
+
+	cfg.Authentication = config.AuthenticationConfig{
+		Username: "ote-user",
+		Password: "bad-password",
+	}
+
+	client, err := epp.Connect(cfg)
+	if err != nil {
+		t.Fatalf("connect failed: %v", err)
+	}
+	defer client.Close()
+
+	err = client.Login()
+	assertEPPErrorCode(t, err, constants.ResultAuthenticationError)
+}
+
 func TestEPPErrorHelpers(t *testing.T) {
 	err := &epp.Error{
 		Code:       constants.ResultObjectExists,
@@ -250,6 +298,26 @@ func simpleEPPResponse(
     <response>
         <result code="1000">
             <msg>Command completed successfully</msg>
+        </result>
+        <trID>
+            <clTRID>` + clientTRID + `</clTRID>
+            <svTRID>` + serverTRID + `</svTRID>
+        </trID>
+    </response>
+</epp>`
+}
+
+func eppErrorResponse(
+	code int,
+	message string,
+	clientTRID string,
+	serverTRID string,
+) string {
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+    <response>
+        <result code="` + fmt.Sprint(code) + `">
+            <msg>` + message + `</msg>
         </result>
         <trID>
             <clTRID>` + clientTRID + `</clTRID>

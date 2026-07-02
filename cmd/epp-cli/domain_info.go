@@ -46,7 +46,7 @@ func runDomainInfo(
 	fmt.Printf("Updated By  : %s\n", resp.Result.UpdatedBy)
 
 	if resp.Result.AuthInfo != "" {
-		fmt.Printf("AuthInfo    : %s\n", resp.Result.AuthInfo)
+		fmt.Println("AuthInfo    : <redacted>")
 	}
 
 	if resp.Result.AuthInfoROID != "" {

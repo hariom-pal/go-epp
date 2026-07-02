@@ -4,13 +4,18 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net"
 	"os"
+	"time"
 
 	"github.com/hariom-pal/go-epp/internal/config"
 )
 
 // Connect opens a TLS EPP session and reads the server greeting.
 func Connect(cfg *config.Config) (*Client, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("config is required")
+	}
 
 	// Load client certificate
 	cert, err := tls.LoadX509KeyPair(
@@ -53,7 +58,11 @@ func Connect(cfg *config.Config) (*Client, error) {
 		cfg.Server.Port,
 	)
 
-	conn, err := tls.Dial("tcp", address, tlsConfig)
+	dialer := &net.Dialer{
+		Timeout: timeoutDuration(cfg.Timeout.Connect),
+	}
+
+	conn, err := tls.DialWithDialer(dialer, "tcp", address, tlsConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -72,4 +81,11 @@ func Connect(cfg *config.Config) (*Client, error) {
 	}
 
 	return client, nil
+}
+
+func timeoutDuration(seconds int) time.Duration {
+	if seconds <= 0 {
+		return 0
+	}
+	return time.Duration(seconds) * time.Second
 }

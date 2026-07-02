@@ -74,6 +74,6 @@ Latest local run:
 
 ## Known Limitations
 
-- Login and logout still print raw registry responses to stdout.
+- CLI info commands redact authInfo values that may be returned by registries.
 - Validation intentionally avoids registry-specific policy checks such as premium pricing eligibility, launch phase calendars, DNSSEC algorithm policy, and reserved-name policy.
 - Coverage visibility requires `-coverpkg=./...` when tests remain in external `test/` packages.

@@ -111,6 +111,14 @@ timeout:
   write: 30
 ```
 
+Create a local config from the example before running the CLI:
+
+```bash
+cp configs/config.yaml.example configs/config.yaml
+```
+
+`configs/config.yaml` is intentionally ignored by Git because it contains local registry credentials and certificate paths.
+
 ## Connect
 
 ```go
