@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -13,7 +14,14 @@ import (
 func (c *Client) HostCheck(
 	req types.HostCheckRequest,
 ) (*types.HostCheckResponse, error) {
+	return c.HostCheckContext(context.Background(), req)
+}
 
+// HostCheckContext checks availability for one or more host names.
+func (c *Client) HostCheckContext(
+	ctx context.Context,
+	req types.HostCheckRequest,
+) (*types.HostCheckResponse, error) {
 	if len(req.Hosts) == 0 {
 		return nil, &Error{
 			Code:    constants.ResultParameterError,
@@ -70,7 +78,7 @@ func (c *Client) HostCheck(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "host.check", false)
 	if err != nil {
 		return nil, err
 	}
@@ -81,25 +89,17 @@ func (c *Client) HostCheck(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	resp := &types.HostCheckResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
-		Results: make([]types.HostCheckResult, 0, len(response.Response.ResData.CheckData.CD)),
+		Response: commonResponse,
+		Results:  make([]types.HostCheckResult, 0, len(response.Response.ResData.CheckData.CD)),
 	}
 
 	for _, cd := range response.Response.ResData.CheckData.CD {

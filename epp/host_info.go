@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -13,7 +14,14 @@ import (
 func (c *Client) HostInfo(
 	req types.HostInfoRequest,
 ) (*types.HostInfoResponse, error) {
+	return c.HostInfoContext(context.Background(), req)
+}
 
+// HostInfoContext retrieves RFC5732 information for a host.
+func (c *Client) HostInfoContext(
+	ctx context.Context,
+	req types.HostInfoRequest,
+) (*types.HostInfoResponse, error) {
 	host := strings.TrimSpace(req.HostName)
 	host = strings.TrimSuffix(host, ".")
 
@@ -53,7 +61,7 @@ func (c *Client) HostInfo(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "host.info", false)
 	if err != nil {
 		return nil, err
 	}
@@ -64,15 +72,12 @@ func (c *Client) HostInfo(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	info := response.Response.ResData.InfoData
@@ -83,12 +88,7 @@ func (c *Client) HostInfo(
 	}
 
 	resp := &types.HostInfoResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Host: types.HostInfo{
 			HostName:  unicode,
 			ASCIIName: strings.TrimSpace(info.Name),

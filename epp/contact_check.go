@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -12,7 +13,14 @@ import (
 func (c *Client) ContactCheck(
 	req types.ContactCheckRequest,
 ) (*types.ContactCheckResponse, error) {
+	return c.ContactCheckContext(context.Background(), req)
+}
 
+// ContactCheckContext checks availability for one or more contact IDs.
+func (c *Client) ContactCheckContext(
+	ctx context.Context,
+	req types.ContactCheckRequest,
+) (*types.ContactCheckResponse, error) {
 	if len(req.IDs) == 0 {
 		return nil, &Error{
 			Code:    constants.ResultParameterError,
@@ -61,7 +69,7 @@ func (c *Client) ContactCheck(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "contact.check", false)
 	if err != nil {
 		return nil, err
 	}
@@ -72,25 +80,17 @@ func (c *Client) ContactCheck(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	resp := &types.ContactCheckResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
-		Results: make([]types.ContactCheckResult, 0, len(response.Response.ResData.CheckData.CD)),
+		Response: commonResponse,
+		Results:  make([]types.ContactCheckResult, 0, len(response.Response.ResData.CheckData.CD)),
 	}
 
 	for _, cd := range response.Response.ResData.CheckData.CD {

@@ -172,3 +172,39 @@ type ContactDeleteRequest struct {
 type ContactDeleteResponse struct {
 	Response
 }
+
+//
+// ============================================================
+// CONTACT TRANSFER
+// ============================================================
+//
+
+// ContactTransferRequest performs a contact transfer operation.
+type ContactTransferRequest struct {
+	ContactID string
+	Operation string
+	AuthInfo  string
+}
+
+// ContactTransferResponse contains the response for a contact transfer command.
+type ContactTransferResponse struct {
+	Response
+
+	TransferData ContactTransferData
+	Result       ContactTransferResult
+}
+
+// ContactTransferData contains contact-specific transfer response data.
+type ContactTransferData struct {
+	TransferData
+
+	ContactID string
+}
+
+// ContactTransferResult contains compatibility fields for contact transfer responses.
+type ContactTransferResult struct {
+	ContactTransferData
+
+	ContactID string
+	Status    string
+}

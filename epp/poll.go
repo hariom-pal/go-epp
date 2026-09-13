@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -14,7 +15,14 @@ const pollOperationRequestXML = "req"
 func (c *Client) Poll(
 	req types.PollRequest,
 ) (*types.PollResponse, error) {
+	return c.PollContext(context.Background(), req)
+}
 
+// PollContext requests the next queued RFC5730 service message or acknowledges one.
+func (c *Client) PollContext(
+	ctx context.Context,
+	req types.PollRequest,
+) (*types.PollResponse, error) {
 	requestXML, err := buildPollRequestXML(
 		req,
 		c.nextTRID("POLL"),
@@ -23,7 +31,7 @@ func (c *Client) Poll(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.ExecuteContext(ctx, requestXML)
 	if err != nil {
 		return nil, err
 	}
@@ -102,25 +110,19 @@ func parsePollResponseXML(
 		return nil, err
 	}
 
-	if !constants.IsSuccessResultCode(response.Response.Result.Code) {
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	queue := response.Response.MessageQueue
 	message := strings.TrimSpace(queue.Message)
 
 	resp := &types.PollResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response:      commonResponse,
 		ResultMessage: response.Response.Result.Msg,
 		MessageQueue: types.MessageQueue{
 			Count:   queue.Count,

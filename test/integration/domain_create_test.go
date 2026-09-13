@@ -259,6 +259,7 @@ func startDomainCreateServer(
 			CertFile:           certFile,
 			KeyFile:            keyFile,
 			InsecureSkipVerify: true,
+			AllowInsecure:      true,
 		},
 	}
 

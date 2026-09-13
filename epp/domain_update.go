@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -16,7 +17,14 @@ import (
 func (c *Client) DomainUpdate(
 	req types.DomainUpdateRequest,
 ) (*types.DomainUpdateResponse, error) {
+	return c.DomainUpdateContext(context.Background(), req)
+}
 
+// DomainUpdateContext updates a domain object using RFC5731 add, remove, and change sections.
+func (c *Client) DomainUpdateContext(
+	ctx context.Context,
+	req types.DomainUpdateRequest,
+) (*types.DomainUpdateResponse, error) {
 	domain, requestXML, err := buildDomainUpdateRequestXML(
 		req,
 		c.nextTRID("UPDATE"),
@@ -25,7 +33,7 @@ func (c *Client) DomainUpdate(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "domain.update", true)
 	if err != nil {
 		return nil, err
 	}
@@ -195,26 +203,18 @@ func parseDomainUpdateResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	rgpUpdate := rgpext.UpdateDataFromXML(response.Response.Extension.RGPUpdateData)
 
 	return &types.DomainUpdateResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Result: types.DomainUpdateResult{
 			Domain: domain,
 			RGP:    rgpUpdate,

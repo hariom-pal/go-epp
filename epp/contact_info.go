@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 	"time"
@@ -13,7 +14,14 @@ import (
 func (c *Client) ContactInfo(
 	req types.ContactInfoRequest,
 ) (*types.ContactInfoResponse, error) {
+	return c.ContactInfoContext(context.Background(), req)
+}
 
+// ContactInfoContext retrieves RFC5733 information for a contact.
+func (c *Client) ContactInfoContext(
+	ctx context.Context,
+	req types.ContactInfoRequest,
+) (*types.ContactInfoResponse, error) {
 	contactID := strings.TrimSpace(req.ContactID)
 	if contactID == "" {
 		return nil, &Error{
@@ -46,7 +54,7 @@ func (c *Client) ContactInfo(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "contact.info", false)
 	if err != nil {
 		return nil, err
 	}
@@ -57,26 +65,18 @@ func (c *Client) ContactInfo(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	info := response.Response.ResData.InfoData
 
 	resp := &types.ContactInfoResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Contact: types.ContactInfo{
 			ContactID: info.ID,
 			ROID:      info.ROID,

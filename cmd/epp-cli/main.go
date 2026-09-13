@@ -11,7 +11,7 @@ import (
 func main() {
 	options := parseOptions()
 
-	cfg, err := config.Load(options.ConfigPath)
+	cfg, err := config.LoadFromFile(options.ConfigPath)
 	if err != nil {
 		log.Fatal(err)
 	}

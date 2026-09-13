@@ -4,7 +4,7 @@
 
 ## Package Layout
 
-- `epp/`: RFC5730-RFC5734 commands, XML request/response models, TRID generation, `Execute`, session handling, and RFC5734 framing.
+- `epp/`: RFC5730-RFC5734 commands, XML request/response models, TRID generation, context-aware execution, session handling, and RFC5734 framing.
 - `types/`: public request and response structs used by applications.
 - `constants/`: result codes, statuses, transfer operations, object constants, and XML namespaces.
 - `extensions/`: optional reusable extension packages.
@@ -46,8 +46,9 @@ epp.DomainCreate
         v
 epp.Execute
         |
+        +-- serialize one complete command transaction
         +-- WriteFrame
-        +-- ReadFrame
+        +-- ReadFrame with maximum frame-size validation
         |
         v
 parse XML response into public response types
@@ -68,7 +69,9 @@ The v1.0 API should avoid breaking changes. Additive fields are preferred over r
 ## Operational Guidance
 
 - Reuse a client for one EPP session.
+- Use one client concurrently only when SDK serialization is acceptable for your workload.
 - Login before issuing commands that require authentication.
 - Logout and close the connection when finished.
-- Send extension XML only when the registry supports the namespace and policy.
+- Configure desired login extensions and send extension XML only when the registry supports the namespace and policy.
+- Treat lost transform responses as ambiguous and reconcile using registry state.
 - Treat registry policy as application-level configuration, not SDK behavior.

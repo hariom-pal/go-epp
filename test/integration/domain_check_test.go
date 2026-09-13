@@ -73,6 +73,32 @@ func TestDomainCheckXMLGenerationAndParsing(t *testing.T) {
 	}
 }
 
+func TestDomainCheckPreservesMultipleResults(t *testing.T) {
+	cfg, _, cleanup := startDomainCreateServer(t, domainCheckMultiResultResponse())
+	defer cleanup()
+
+	client, err := epp.Connect(cfg)
+	if err != nil {
+		t.Fatalf("connect failed: %v", err)
+	}
+	defer client.Close()
+
+	resp, err := client.DomainCheck(types.DomainCheckRequest{
+		Domains: []string{"example.in"},
+	})
+	if err != nil {
+		t.Fatalf("domain check failed: %v", err)
+	}
+
+	if resp.ResultCode != constants.ResultSuccess || len(resp.Response.Results) != 2 {
+		t.Fatalf("expected two preserved results, got %+v", resp.Response)
+	}
+	if resp.Response.Results[1].Code != constants.ResultSuccessPending ||
+		resp.Response.Results[1].Message != "Command completed; action pending" {
+		t.Fatalf("unexpected second result: %+v", resp.Response.Results[1])
+	}
+}
+
 func TestDomainCheckUnicodeConversion(t *testing.T) {
 	unicodeDomain := "भारत.भारत"
 	asciiDomain, err := idn.ToASCII(unicodeDomain)
@@ -139,6 +165,31 @@ func domainCheckResponse() string {
         <trID>
             <clTRID>DOMAIN-CHECK-TEST</clTRID>
             <svTRID>SERVER-DOMAIN-CHECK</svTRID>
+        </trID>
+    </response>
+</epp>`
+}
+
+func domainCheckMultiResultResponse() string {
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+    <response>
+        <result code="1000">
+            <msg>Command completed successfully</msg>
+        </result>
+        <result code="1001">
+            <msg>Command completed; action pending</msg>
+        </result>
+        <resData>
+            <domain:chkData xmlns:domain="urn:ietf:params:xml:ns:domain-1.0">
+                <domain:cd>
+                    <domain:name avail="1">example.in</domain:name>
+                </domain:cd>
+            </domain:chkData>
+        </resData>
+        <trID>
+            <clTRID>CHECK-TEST</clTRID>
+            <svTRID>SERVER-CHECK</svTRID>
         </trID>
     </response>
 </epp>`

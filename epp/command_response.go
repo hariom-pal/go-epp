@@ -2,8 +2,6 @@ package epp
 
 import (
 	"encoding/xml"
-
-	"github.com/hariom-pal/go-epp/constants"
 )
 
 func parseCommandResponse(responseXML []byte) error {
@@ -13,16 +11,7 @@ func parseCommandResponse(responseXML []byte) error {
 		return err
 	}
 
-	if !constants.IsSuccessResultCode(response.Response.Result.Code) {
-		return &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
-	}
-
-	return nil
+	return responseResultError(responseXML)
 }
 
 type commandResponseXML struct {

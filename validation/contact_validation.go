@@ -72,6 +72,21 @@ func ValidateContactDelete(req types.ContactDeleteRequest) error {
 	return validateContactID(req.ContactID)
 }
 
+// ValidateContactTransfer validates a contact transfer request.
+func ValidateContactTransfer(req types.ContactTransferRequest) error {
+	if err := validateContactID(req.ContactID); err != nil {
+		return err
+	}
+	operation := strings.ToLower(strings.TrimSpace(req.Operation))
+	if !constants.IsTransferOperation(operation) {
+		return fmt.Errorf("transfer operation is invalid")
+	}
+	if operation == constants.TransferRequest && strings.TrimSpace(req.AuthInfo) == "" {
+		return required("authInfo")
+	}
+	return nil
+}
+
 func validateContactID(value string) error {
 	if strings.TrimSpace(value) == "" {
 		return required("contact ID")

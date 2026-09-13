@@ -104,11 +104,24 @@ tls:
   key_file: certs/client.key
   ca_file: certs/ca.crt
   insecure_skip_verify: false
+  allow_insecure: false
 
 timeout:
   connect: 30
   read: 30
   write: 30
+
+transport:
+  max_frame_size: 16777216
+
+login:
+  object_uris:
+    - urn:ietf:params:xml:ns:domain-1.0
+    - urn:ietf:params:xml:ns:contact-1.0
+    - urn:ietf:params:xml:ns:host-1.0
+  require_supported_objects: true
+  extension_uris: []
+  require_supported_extensions: true
 ```
 
 Create a local config from the example before running the CLI:
@@ -328,10 +341,16 @@ go run ./cmd/epp-cli \
 The SDK is designed for direct use from registrar services and integration tooling:
 
 - Reuse one `epp.Client` per EPP session.
+- Use `ExecuteContext` and `*Context` command methods when the caller has a request deadline or cancellation signal.
 - Call `Login` before transform/query commands when required by the registry.
 - Always call `Logout` and `Close` when a session is complete.
 - Inspect `*epp.Error` with `errors.As` for EPP result-code-specific behavior.
+- Inspect `Response.Results` when registries return multiple RFC5730 result elements.
 - Send optional extensions only when supported by the target registry.
+- Do not issue concurrent commands against one client unless you intentionally want them serialized by the SDK.
+- Treat transform-command transport failures as ambiguous until reconciled with registry state.
+
+See `docs/PRODUCTION-SAFETY.md` before using this SDK in a registrar service.
 
 ## Architecture Diagram
 

@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -12,7 +13,14 @@ import (
 func (c *Client) ContactUpdate(
 	req types.ContactUpdateRequest,
 ) (*types.ContactUpdateResponse, error) {
+	return c.ContactUpdateContext(context.Background(), req)
+}
 
+// ContactUpdateContext updates a contact object.
+func (c *Client) ContactUpdateContext(
+	ctx context.Context,
+	req types.ContactUpdateRequest,
+) (*types.ContactUpdateResponse, error) {
 	requestXML, err := buildContactUpdateRequestXML(
 		req,
 		c.nextTRID("UPDATE"),
@@ -21,7 +29,7 @@ func (c *Client) ContactUpdate(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "contact.update", true)
 	if err != nil {
 		return nil, err
 	}
@@ -107,24 +115,16 @@ func parseContactUpdateResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	return &types.ContactUpdateResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 	}, nil
 }
 

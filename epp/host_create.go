@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"net"
 	"strings"
@@ -19,7 +20,14 @@ const (
 func (c *Client) HostCreate(
 	req types.HostCreateRequest,
 ) (*types.HostCreateResponse, error) {
+	return c.HostCreateContext(context.Background(), req)
+}
 
+// HostCreateContext creates a host object.
+func (c *Client) HostCreateContext(
+	ctx context.Context,
+	req types.HostCreateRequest,
+) (*types.HostCreateResponse, error) {
 	requestXML, err := buildHostCreateRequestXML(
 		req,
 		c.nextTRID("CREATE"),
@@ -28,7 +36,7 @@ func (c *Client) HostCreate(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "host.create", true)
 	if err != nil {
 		return nil, err
 	}
@@ -99,15 +107,12 @@ func parseHostCreateResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	createData := response.Response.ResData.CreateData
@@ -118,12 +123,7 @@ func parseHostCreateResponseXML(
 	}
 
 	resp := &types.HostCreateResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Result: types.HostCreateResult{
 			HostName: unicode,
 		},

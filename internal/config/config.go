@@ -12,6 +12,8 @@ type Config struct {
 	Authentication AuthenticationConfig
 	TLS            TLSConfig
 	Timeout        TimeoutConfig
+	Transport      TransportConfig
+	Login          LoginConfig
 }
 
 // ServerConfig contains the EPP server endpoint.
@@ -32,6 +34,7 @@ type TLSConfig struct {
 	KeyFile            string `yaml:"key_file"`
 	CAFile             string `yaml:"ca_file"`
 	InsecureSkipVerify bool   `yaml:"insecure_skip_verify"`
+	AllowInsecure      bool   `yaml:"allow_insecure"`
 }
 
 // TimeoutConfig contains timeout settings in seconds.
@@ -41,8 +44,24 @@ type TimeoutConfig struct {
 	Write   int `yaml:"write"`
 }
 
-// Load reads and parses a YAML configuration file.
-func Load(path string) (*Config, error) {
+// TransportConfig contains wire-level safety limits.
+type TransportConfig struct {
+	MaxFrameSize int `yaml:"max_frame_size"`
+}
+
+// LoginConfig controls which services are advertised during login.
+type LoginConfig struct {
+	ObjectURIs                 []string `yaml:"object_uris"`
+	RequireSupportedObjects    bool     `yaml:"require_supported_objects"`
+	ExtensionURIs              []string `yaml:"extension_uris"`
+	RequireSupportedExtensions bool     `yaml:"require_supported_extensions"`
+}
+
+// LoadFromFile reads and parses a YAML configuration file.
+// This function is intended for use by CLI tools, examples, and integration tests
+// that need to load configuration from a file path.
+// The SDK itself should not use this function directly for client instantiation.
+func LoadFromFile(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err

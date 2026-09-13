@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -14,7 +15,14 @@ import (
 func (c *Client) DomainCheck(
 	req types.DomainCheckRequest,
 ) (*types.DomainCheckResponse, error) {
+	return c.DomainCheckContext(context.Background(), req)
+}
 
+// DomainCheckContext checks availability for one or more domains.
+func (c *Client) DomainCheckContext(
+	ctx context.Context,
+	req types.DomainCheckRequest,
+) (*types.DomainCheckResponse, error) {
 	if len(req.Domains) == 0 {
 		return nil, &Error{
 			Code:    constants.ResultParameterError,
@@ -73,7 +81,7 @@ func (c *Client) DomainCheck(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "domain.check", false)
 	if err != nil {
 		return nil, err
 	}
@@ -84,26 +92,18 @@ func (c *Client) DomainCheck(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	resp := &types.DomainCheckResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
-		Results: make([]types.DomainCheckResult, 0, len(response.Response.ResData.CheckData.CD)),
-		Fee:     feeext.CheckDataFromXML(response.Response.Extension.FeeCheckData),
+		Response: commonResponse,
+		Results:  make([]types.DomainCheckResult, 0, len(response.Response.ResData.CheckData.CD)),
+		Fee:      feeext.CheckDataFromXML(response.Response.Extension.FeeCheckData),
 	}
 
 	for _, cd := range response.Response.ResData.CheckData.CD {

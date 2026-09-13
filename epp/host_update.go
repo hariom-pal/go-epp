@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -13,7 +14,14 @@ import (
 func (c *Client) HostUpdate(
 	req types.HostUpdateRequest,
 ) (*types.HostUpdateResponse, error) {
+	return c.HostUpdateContext(context.Background(), req)
+}
 
+// HostUpdateContext updates a host object.
+func (c *Client) HostUpdateContext(
+	ctx context.Context,
+	req types.HostUpdateRequest,
+) (*types.HostUpdateResponse, error) {
 	requestXML, err := buildHostUpdateRequestXML(
 		req,
 		c.nextTRID("UPDATE"),
@@ -22,7 +30,7 @@ func (c *Client) HostUpdate(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "host.update", true)
 	if err != nil {
 		return nil, err
 	}
@@ -115,24 +123,16 @@ func parseHostUpdateResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	return &types.HostUpdateResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 	}, nil
 }
 

@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -14,7 +15,14 @@ import (
 func (c *Client) DomainTransfer(
 	req types.DomainTransferRequest,
 ) (*types.DomainTransferResponse, error) {
+	return c.DomainTransferContext(context.Background(), req)
+}
 
+// DomainTransferContext performs a domain transfer query, request, approve, cancel, or reject command.
+func (c *Client) DomainTransferContext(
+	ctx context.Context,
+	req types.DomainTransferRequest,
+) (*types.DomainTransferResponse, error) {
 	requestXML, err := buildDomainTransferRequestXML(
 		req,
 		c.nextTRID("TRANSFER"),
@@ -23,7 +31,8 @@ func (c *Client) DomainTransfer(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	transform := strings.ToLower(strings.TrimSpace(req.Operation)) != constants.TransferQuery
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "domain.transfer."+strings.ToLower(strings.TrimSpace(req.Operation)), transform)
 	if err != nil {
 		return nil, err
 	}
@@ -143,15 +152,12 @@ func parseDomainTransferResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	transferData := domainTransferDataFromXML(
@@ -160,12 +166,7 @@ func parseDomainTransferResponseXML(
 	transferData.Fee = feeext.TransformDataFromXML(response.Response.Extension.FeeTransferData)
 
 	return &types.DomainTransferResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response:     commonResponse,
 		TransferData: transferData,
 		Result: types.DomainTransferResult{
 			DomainTransferData: transferData,

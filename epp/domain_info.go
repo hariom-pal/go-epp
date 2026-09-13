@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 	"time"
@@ -18,7 +19,14 @@ import (
 func (c *Client) DomainInfo(
 	req types.DomainInfoRequest,
 ) (*types.DomainInfoResponse, error) {
+	return c.DomainInfoContext(context.Background(), req)
+}
 
+// DomainInfoContext retrieves RFC5731 information for a domain.
+func (c *Client) DomainInfoContext(
+	ctx context.Context,
+	req types.DomainInfoRequest,
+) (*types.DomainInfoResponse, error) {
 	domain := strings.TrimSpace(req.Domain)
 	domain = strings.TrimSuffix(domain, ".")
 
@@ -81,7 +89,7 @@ func (c *Client) DomainInfo(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "domain.info", false)
 	if err != nil {
 		return nil, err
 	}
@@ -92,15 +100,12 @@ func (c *Client) DomainInfo(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	info := response.Response.ResData.InfoData
@@ -116,12 +121,7 @@ func (c *Client) DomainInfo(
 	}
 
 	resp := &types.DomainInfoResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Result: types.DomainInfoResult{
 			Domain:       unicode,
 			ASCII:        info.Name,

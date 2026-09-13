@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 	"time"
@@ -10,7 +11,12 @@ import (
 
 // Hello sends an RFC5730 hello command and returns the server greeting.
 func (c *Client) Hello() (*types.Greeting, error) {
-	responseXML, err := c.Execute([]byte(helloRequestXML))
+	return c.HelloContext(context.Background())
+}
+
+// HelloContext sends an RFC5730 hello command and returns the server greeting.
+func (c *Client) HelloContext(ctx context.Context) (*types.Greeting, error) {
+	responseXML, err := c.ExecuteContext(ctx, []byte(helloRequestXML))
 	if err != nil {
 		return nil, err
 	}

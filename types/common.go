@@ -6,9 +6,17 @@ import "time"
 type Response struct {
 	ResultCode int
 	ResultMsg  string
+	Results    []Result
 
 	ClientTRID string
 	ServerTRID string
+}
+
+// Result contains one RFC5730 result element.
+type Result struct {
+	Code    int
+	Message string
+	Lang    string
 }
 
 //

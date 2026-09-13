@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -13,7 +14,14 @@ import (
 func (c *Client) HostDelete(
 	req types.HostDeleteRequest,
 ) (*types.HostDeleteResponse, error) {
+	return c.HostDeleteContext(context.Background(), req)
+}
 
+// HostDeleteContext deletes a host object.
+func (c *Client) HostDeleteContext(
+	ctx context.Context,
+	req types.HostDeleteRequest,
+) (*types.HostDeleteResponse, error) {
 	host := strings.TrimSpace(req.HostName)
 	host = strings.TrimSuffix(host, ".")
 
@@ -53,7 +61,7 @@ func (c *Client) HostDelete(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "host.delete", true)
 	if err != nil {
 		return nil, err
 	}
@@ -64,23 +72,15 @@ func (c *Client) HostDelete(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	return &types.HostDeleteResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 	}, nil
 }

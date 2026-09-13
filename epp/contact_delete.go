@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -12,7 +13,14 @@ import (
 func (c *Client) ContactDelete(
 	req types.ContactDeleteRequest,
 ) (*types.ContactDeleteResponse, error) {
+	return c.ContactDeleteContext(context.Background(), req)
+}
 
+// ContactDeleteContext deletes a contact object.
+func (c *Client) ContactDeleteContext(
+	ctx context.Context,
+	req types.ContactDeleteRequest,
+) (*types.ContactDeleteResponse, error) {
 	contactID := strings.TrimSpace(req.ContactID)
 	if contactID == "" {
 		return nil, &Error{
@@ -45,7 +53,7 @@ func (c *Client) ContactDelete(
 
 	requestXML = append([]byte(xml.Header), requestXML...)
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "contact.delete", true)
 	if err != nil {
 		return nil, err
 	}
@@ -56,23 +64,15 @@ func (c *Client) ContactDelete(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	return &types.ContactDeleteResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 	}, nil
 }

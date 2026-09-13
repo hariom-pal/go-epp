@@ -1,14 +1,25 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
+	"slices"
+	"strings"
 
 	"github.com/hariom-pal/go-epp/constants"
 )
 
 // Login sends an EPP login command using the client's configured credentials.
 func (c *Client) Login() error {
+	return c.LoginContext(context.Background())
+}
 
+// LoginContext sends an EPP login command using the client's configured credentials.
+func (c *Client) LoginContext(ctx context.Context) error {
+	objects, extensions, err := c.loginServices()
+	if err != nil {
+		return err
+	}
 	request := loginRequestXML{
 		XMLNS: constants.EPPNamespace,
 		Command: loginCommandXML{
@@ -20,20 +31,8 @@ func (c *Client) Login() error {
 					Lang:    "en",
 				},
 				Services: loginServicesXML{
-					ObjectURIs: []string{
-						constants.DomainNamespace,
-						constants.ContactNamespace,
-						constants.HostNamespace,
-					},
-					ServiceExtension: loginServiceExtensionXML{
-						ExtensionURIs: []string{
-							constants.SecDNSNamespace,
-							constants.RGPNamespace,
-							constants.IDNNamespace,
-							constants.FeeNamespace,
-							constants.LaunchNamespace,
-						},
-					},
+					ObjectURIs:       objects,
+					ServiceExtension: serviceExtensionXML(extensions),
 				},
 			},
 			ClientTRID: c.nextTRID("LOGIN"),
@@ -47,12 +46,96 @@ func (c *Client) Login() error {
 
 	loginXML = append([]byte(xml.Header), loginXML...)
 
-	response, err := c.Execute(loginXML)
+	response, err := c.ExecuteContext(ctx, loginXML)
 	if err != nil {
 		return err
 	}
 
-	return parseCommandResponse(response)
+	if err := parseCommandResponse(response); err != nil {
+		return err
+	}
+	c.setLoggedIn(true)
+	c.emit(Event{Type: EventLogin})
+	return nil
+}
+
+func (c *Client) loginServices() ([]string, []string, error) {
+	desiredObjects := append([]string(nil), c.config.Login.ObjectURIs...)
+	if len(desiredObjects) == 0 {
+		desiredObjects = []string{
+			constants.DomainNamespace,
+			constants.ContactNamespace,
+			constants.HostNamespace,
+		}
+	}
+	supportedObjects := map[string]bool{}
+	if c.greetingInfo != nil {
+		for _, uri := range c.greetingInfo.SupportedObjects {
+			supportedObjects[strings.TrimSpace(uri)] = true
+		}
+	}
+
+	objects := make([]string, 0, len(desiredObjects))
+	for _, uri := range desiredObjects {
+		uri = strings.TrimSpace(uri)
+		if uri == "" {
+			continue
+		}
+		if c.greetingInfo != nil && len(supportedObjects) > 0 && !supportedObjects[uri] {
+			if c.config.Login.RequireSupportedObjects {
+				return nil, nil, newSDKError(
+					ErrorKindConfiguration,
+					"requested login object is not advertised by greeting: "+uri,
+					nil,
+				)
+			}
+			continue
+		}
+		if !slices.Contains(objects, uri) {
+			objects = append(objects, uri)
+		}
+	}
+	if len(objects) == 0 {
+		return nil, nil, newSDKError(ErrorKindConfiguration, "no login object services are available", nil)
+	}
+
+	desiredExtensions := append([]string(nil), c.config.Login.ExtensionURIs...)
+	supportedExtensions := map[string]bool{}
+	if c.greetingInfo != nil {
+		for _, uri := range c.greetingInfo.SupportedExtensions {
+			supportedExtensions[strings.TrimSpace(uri)] = true
+		}
+	}
+
+	extensions := make([]string, 0, len(desiredExtensions))
+	for _, uri := range desiredExtensions {
+		uri = strings.TrimSpace(uri)
+		if uri == "" {
+			continue
+		}
+		if c.greetingInfo != nil && !supportedExtensions[uri] {
+			if c.config.Login.RequireSupportedExtensions {
+				return nil, nil, newSDKError(
+					ErrorKindConfiguration,
+					"requested login extension is not advertised by greeting: "+uri,
+					nil,
+				)
+			}
+			continue
+		}
+		if !slices.Contains(extensions, uri) {
+			extensions = append(extensions, uri)
+		}
+	}
+
+	return objects, extensions, nil
+}
+
+func serviceExtensionXML(extensions []string) *loginServiceExtensionXML {
+	if len(extensions) == 0 {
+		return nil
+	}
+	return &loginServiceExtensionXML{ExtensionURIs: extensions}
 }
 
 type loginRequestXML struct {
@@ -80,8 +163,8 @@ type loginOptionsXML struct {
 }
 
 type loginServicesXML struct {
-	ObjectURIs       []string                 `xml:"objURI"`
-	ServiceExtension loginServiceExtensionXML `xml:"svcExtension"`
+	ObjectURIs       []string                  `xml:"objURI"`
+	ServiceExtension *loginServiceExtensionXML `xml:"svcExtension,omitempty"`
 }
 
 type loginServiceExtensionXML struct {

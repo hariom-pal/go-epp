@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"net"
 	"strings"
@@ -24,7 +25,14 @@ const (
 func (c *Client) DomainCreate(
 	req types.DomainCreateRequest,
 ) (*types.DomainCreateResponse, error) {
+	return c.DomainCreateContext(context.Background(), req)
+}
 
+// DomainCreateContext creates a domain object.
+func (c *Client) DomainCreateContext(
+	ctx context.Context,
+	req types.DomainCreateRequest,
+) (*types.DomainCreateResponse, error) {
 	requestXML, err := buildDomainCreateRequestXML(
 		req,
 		c.nextTRID("CREATE"),
@@ -33,7 +41,7 @@ func (c *Client) DomainCreate(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "domain.create", true)
 	if err != nil {
 		return nil, err
 	}
@@ -177,15 +185,12 @@ func parseDomainCreateResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	createData := response.Response.ResData.CreateData
@@ -196,12 +201,7 @@ func parseDomainCreateResponseXML(
 	}
 
 	resp := &types.DomainCreateResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Result: types.DomainCreateResult{
 			Domain: unicode,
 			Fee:    feeext.TransformDataFromXML(response.Response.Extension.FeeCreateData),

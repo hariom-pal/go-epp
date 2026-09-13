@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -14,7 +15,14 @@ import (
 func (c *Client) DomainDelete(
 	req types.DomainDeleteRequest,
 ) (*types.DomainDeleteResponse, error) {
+	return c.DomainDeleteContext(context.Background(), req)
+}
 
+// DomainDeleteContext deletes a domain object.
+func (c *Client) DomainDeleteContext(
+	ctx context.Context,
+	req types.DomainDeleteRequest,
+) (*types.DomainDeleteResponse, error) {
 	domain, requestXML, err := buildDomainDeleteRequestXML(
 		req,
 		c.nextTRID("DELETE"),
@@ -23,7 +31,7 @@ func (c *Client) DomainDelete(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "domain.delete", true)
 	if err != nil {
 		return nil, err
 	}
@@ -114,24 +122,16 @@ func parseDomainDeleteResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	return &types.DomainDeleteResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Result: types.DomainDeleteResult{
 			Domain:     domain,
 			DomainName: domain,

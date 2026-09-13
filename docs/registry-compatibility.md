@@ -2,6 +2,14 @@
 
 `go-epp` is registry independent. It implements EPP commands and extension XML models but does not hardcode registry policy.
 
+For NIXI or any other registry, keep the boundary explicit:
+
+```text
+Registrar Service -> Registry Adapter -> go-epp
+```
+
+The adapter should handle registry-specific extensions, policy, IDN tables, premium/reserved behavior, registry-specific contact requirements, and OT&E/certification differences.
+
 ## Registry Differences
 
 Registries commonly differ in:

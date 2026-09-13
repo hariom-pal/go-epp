@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 	"time"
@@ -17,7 +18,14 @@ const domainRenewDateLayout = "2006-01-02"
 func (c *Client) DomainRenew(
 	req types.DomainRenewRequest,
 ) (*types.DomainRenewResponse, error) {
+	return c.DomainRenewContext(context.Background(), req)
+}
 
+// DomainRenewContext renews a domain registration.
+func (c *Client) DomainRenewContext(
+	ctx context.Context,
+	req types.DomainRenewRequest,
+) (*types.DomainRenewResponse, error) {
 	requestXML, err := buildDomainRenewRequestXML(
 		req,
 		c.nextTRID("RENEW"),
@@ -26,7 +34,7 @@ func (c *Client) DomainRenew(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "domain.renew", true)
 	if err != nil {
 		return nil, err
 	}
@@ -112,15 +120,12 @@ func parseDomainRenewResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	renewData := response.Response.ResData.RenewData
@@ -131,12 +136,7 @@ func parseDomainRenewResponseXML(
 	}
 
 	resp := &types.DomainRenewResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Result: types.DomainRenewResult{
 			Domain:     unicode,
 			DomainName: unicode,

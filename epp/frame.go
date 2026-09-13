@@ -2,6 +2,7 @@ package epp
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -9,23 +10,48 @@ import (
 
 const eppFrameHeaderLength = 4
 
+const DefaultMaxFrameSize = 16 * 1024 * 1024
+
 // ReadFrame reads a single RFC5734 EPP frame payload from conn.
 func ReadFrame(conn net.Conn) ([]byte, error) {
+	return ReadFrameWithMax(conn, DefaultMaxFrameSize)
+}
+
+// ReadFrameWithMax reads a single RFC5734 EPP frame payload using maxFrameSize.
+func ReadFrameWithMax(conn net.Conn, maxFrameSize int) ([]byte, error) {
 	header := make([]byte, eppFrameHeaderLength)
 
 	if _, err := io.ReadFull(conn, header); err != nil {
-		return nil, err
+		return nil, classifyTransportError(err)
 	}
 
 	length := binary.BigEndian.Uint32(header)
 	if length < eppFrameHeaderLength {
-		return nil, fmt.Errorf("invalid EPP frame length %d", length)
+		return nil, newSDKError(
+			ErrorKindFraming,
+			fmt.Sprintf("invalid EPP frame length %d", length),
+			ErrInvalidFrameLength,
+		)
+	}
+
+	if maxFrameSize <= 0 {
+		maxFrameSize = DefaultMaxFrameSize
+	}
+	if uint64(length) > uint64(maxFrameSize) {
+		return nil, newSDKError(
+			ErrorKindFraming,
+			fmt.Sprintf("EPP frame length %d exceeds maximum %d", length, maxFrameSize),
+			ErrFrameTooLarge,
+		)
 	}
 
 	payload := make([]byte, length-eppFrameHeaderLength)
 
 	if _, err := io.ReadFull(conn, payload); err != nil {
-		return nil, err
+		if errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, io.EOF) {
+			return nil, newSDKError(ErrorKindFraming, "truncated EPP frame", err)
+		}
+		return nil, classifyTransportError(err)
 	}
 
 	return payload, nil

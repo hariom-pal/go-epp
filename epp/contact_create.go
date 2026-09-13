@@ -1,6 +1,7 @@
 package epp
 
 import (
+	"context"
 	"encoding/xml"
 	"strings"
 
@@ -12,7 +13,14 @@ import (
 func (c *Client) ContactCreate(
 	req types.ContactCreateRequest,
 ) (*types.ContactCreateResponse, error) {
+	return c.ContactCreateContext(context.Background(), req)
+}
 
+// ContactCreateContext creates a contact object.
+func (c *Client) ContactCreateContext(
+	ctx context.Context,
+	req types.ContactCreateRequest,
+) (*types.ContactCreateResponse, error) {
 	requestXML, err := buildContactCreateRequestXML(
 		req,
 		c.nextTRID("CREATE"),
@@ -21,7 +29,7 @@ func (c *Client) ContactCreate(
 		return nil, err
 	}
 
-	responseXML, err := c.Execute(requestXML)
+	responseXML, err := c.executeCommandContext(ctx, requestXML, "contact.create", true)
 	if err != nil {
 		return nil, err
 	}
@@ -116,26 +124,18 @@ func parseContactCreateResponseXML(
 		return nil, err
 	}
 
-	if response.Response.Result.Code != constants.ResultSuccess &&
-		response.Response.Result.Code != constants.ResultSuccessPending {
-
-		return nil, &Error{
-			Code:       response.Response.Result.Code,
-			Message:    response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		}
+	commonResponse, err := responseEnvelope(responseXML)
+	if err != nil {
+		return nil, err
+	}
+	if err := responseResultError(responseXML); err != nil {
+		return nil, err
 	}
 
 	createData := response.Response.ResData.CreateData
 
 	resp := &types.ContactCreateResponse{
-		Response: types.Response{
-			ResultCode: response.Response.Result.Code,
-			ResultMsg:  response.Response.Result.Msg,
-			ClientTRID: response.Response.TRID.ClientTRID,
-			ServerTRID: response.Response.TRID.ServerTRID,
-		},
+		Response: commonResponse,
 		Result: types.ContactCreateResult{
 			ContactID: strings.TrimSpace(createData.ID),
 		},

@@ -17,7 +17,16 @@ type TLSConfig = config.TLSConfig
 // TimeoutConfig contains timeout settings in seconds.
 type TimeoutConfig = config.TimeoutConfig
 
+// TransportConfig contains wire-level safety limits.
+type TransportConfig = config.TransportConfig
+
+// LoginConfig controls which services are advertised during login.
+type LoginConfig = config.LoginConfig
+
 // LoadConfig reads and parses a YAML configuration file.
+// This function is intended for use by CLI tools, examples, and integration tests
+// that need to load configuration from a file path.
+// The SDK itself should not use this function directly for client instantiation.
 func LoadConfig(path string) (*Config, error) {
-	return config.Load(path)
+	return config.LoadFromFile(path)
 }
