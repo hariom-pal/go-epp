@@ -103,6 +103,10 @@ func TestLaunchDomainCreateSignedMarkXML(t *testing.T) {
 
 	assertContains(t, requestXML, `xmlns:smd="urn:ietf:params:xml:ns:signedMark-1.0"`)
 	assertContains(t, requestXML, `<smd:signedMark><smd:id>signed-mark-1</smd:id></smd:signedMark>`)
+	// The mark must appear as a direct child of launch:create. Asserting only
+	// that the substring is present would also pass while it is wrapped in a
+	// spurious element, which is how a real defect went unnoticed here.
+	assertNotContains(t, requestXML, "ChoiceXML")
 }
 
 func TestLaunchDomainInfoXMLAndParsing(t *testing.T) {

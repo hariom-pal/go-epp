@@ -13,6 +13,10 @@ const (
 	// ResultAckToDequeue indicates that the command completed and a message is available.
 	ResultAckToDequeue = 1301
 
+	// ResultEndingSession indicates that the command completed successfully and the
+	// server is ending the session. RFC 5730 requires this code in response to logout.
+	ResultEndingSession = 1500
+
 	// ResultUnknownCommand indicates that the server does not recognize the command.
 	ResultUnknownCommand = 2000
 
@@ -42,14 +46,12 @@ const (
 )
 
 // IsSuccessResultCode reports whether code is an EPP success result code.
+//
+// RFC 5730 section 2.6 classifies result codes by their first digit: every code
+// in the 1xxx range is a positive completion reply. Enumerating only the codes
+// the SDK happens to know would reject valid successes such as 1500 ("command
+// completed successfully; ending session"), which RFC 5730 mandates as the
+// response to logout, so the whole range is accepted.
 func IsSuccessResultCode(code int) bool {
-	switch code {
-	case ResultSuccess,
-		ResultSuccessPending,
-		ResultNoMessages,
-		ResultAckToDequeue:
-		return true
-	default:
-		return false
-	}
+	return code >= 1000 && code < 2000
 }

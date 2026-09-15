@@ -3,7 +3,14 @@ package main
 import "flag"
 
 type cliOptions struct {
-	ConfigPath string
+	ConfigPath  string
+	Environment string
+
+	UAT              bool
+	ConnectOnly      bool
+	LoginOnly        bool
+	ConfirmTransform bool
+	CaptureDir       string
 
 	Hello     bool
 	Poll      bool
@@ -57,6 +64,10 @@ type cliOptions struct {
 
 	ContactDeleteID string
 
+	ContactTransferID        string
+	ContactTransferOperation string
+	ContactTransferAuthInfo  string
+
 	InfoDomain string
 	InfoHosts  string
 
@@ -83,6 +94,8 @@ type cliOptions struct {
 	CreateUnit            string
 	CreateRegistrant      string
 	CreateAuthInfo        string
+	CreateIDNTable        string
+	CreateIDNUName        string
 	CreateAdminContacts   []string
 	CreateTechContacts    []string
 	CreateBillingContacts []string
@@ -118,6 +131,12 @@ func parseOptions() cliOptions {
 	var contactUpdateRemoveStatuses stringList
 
 	flag.StringVar(&options.ConfigPath, "config", "configs/config.yaml", "path to config YAML")
+	flag.StringVar(&options.Environment, "env", "", "environment classification: uat, ote, test, sandbox, or production")
+	flag.BoolVar(&options.UAT, "uat", false, "enable UAT/OT&E safety mode")
+	flag.BoolVar(&options.ConnectOnly, "connect-only", false, "connect, read greeting, print target summary, and exit without login")
+	flag.BoolVar(&options.LoginOnly, "login-only", false, "connect, login, logout, and exit without other commands")
+	flag.BoolVar(&options.ConfirmTransform, "confirm-transform", false, "required before executing any transform operation")
+	flag.StringVar(&options.CaptureDir, "capture-dir", "", "optional directory for sanitized UAT JSONL event capture")
 	flag.BoolVar(&options.Hello, "hello", false, "send an RFC5730 hello command and print the server greeting")
 	flag.BoolVar(&options.Poll, "poll", false, "request the next queued EPP message")
 	flag.StringVar(&options.PollAckID, "poll-ack", "", "message ID to acknowledge and dequeue")
@@ -149,6 +168,9 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.ContactCreateAuthInfo, "contact-authInfo", "", "authInfo password for contact create")
 	flag.StringVar(&options.ContactUpdateID, "contact-update", "", "contact ID for contact update")
 	flag.StringVar(&options.ContactDeleteID, "contact-delete", "", "contact ID for contact delete")
+	flag.StringVar(&options.ContactTransferID, "contact-transfer", "", "contact ID for contact transfer")
+	flag.StringVar(&options.ContactTransferOperation, "contact-transfer-op", "", "contact transfer operation: query, request, approve, cancel, or reject")
+	flag.StringVar(&options.ContactTransferAuthInfo, "contact-transfer-authInfo", "", "authInfo password for contact transfer")
 	flag.StringVar(&options.InfoDomain, "info", "", "domain for domain info")
 	flag.StringVar(&options.InfoHosts, "hosts", "", "domain info hosts value: all, del, sub, or none")
 	flag.StringVar(&options.DomainDeleteName, "domain-delete", "", "domain name for domain delete")
@@ -164,6 +186,8 @@ func parseOptions() cliOptions {
 	flag.StringVar(&options.CreateUnit, "unit", "y", "registration period unit for domain create: y or m")
 	flag.StringVar(&options.CreateRegistrant, "registrant", "", "registrant contact for domain create")
 	flag.StringVar(&options.CreateAuthInfo, "authInfo", "", "authInfo password for domain create")
+	flag.StringVar(&options.CreateIDNTable, "idn-table", "", "idn-1.0 language table tag for IDN domain create")
+	flag.StringVar(&options.CreateIDNUName, "idn-uname", "", "idn-1.0 Unicode name for IDN domain create; defaults to the supplied domain")
 
 	flag.Var(&createAdminContacts, "admin", "admin contact for domain create; may be repeated")
 	flag.Var(&createTechContacts, "tech", "tech contact for domain create; may be repeated")

@@ -42,32 +42,20 @@ func buildContactTransferRequestXML(
 ) ([]byte, error) {
 	contactID := strings.TrimSpace(req.ContactID)
 	if contactID == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "contact ID is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "contact ID is required")
 	}
 
 	operation := strings.ToLower(strings.TrimSpace(req.Operation))
 	if operation == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "transfer operation is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "transfer operation is required")
 	}
 	if !constants.IsTransferOperation(operation) {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid transfer operation",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "invalid transfer operation")
 	}
 
 	authInfo := strings.TrimSpace(req.AuthInfo)
 	if operation == constants.TransferRequest && authInfo == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "authInfo is required for transfer request",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "authInfo is required for transfer request")
 	}
 
 	var authInfoXML *contactCreateAuthInfoXML

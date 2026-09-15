@@ -26,7 +26,10 @@ mem.prof
 # Local Configuration
 # ----------------------------------------------------
 configs/config.yaml
+configs/nixi-uat.yaml
 !configs/config.yaml.example
+!configs/nixi-uat.yaml.example
+.uat-captures/
 
 # ----------------------------------------------------
 # NIXI Certificates

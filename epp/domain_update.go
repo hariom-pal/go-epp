@@ -53,10 +53,7 @@ func buildDomainUpdateRequestXML(
 	domain = strings.TrimSuffix(domain, ".")
 
 	if domain == "" {
-		return "", nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "domain name is required",
-		}
+		return "", nil, newValidationError(constants.ResultParameterError, "domain name is required")
 	}
 
 	ascii, err := idn.ToASCII(domain)
@@ -96,24 +93,15 @@ func buildDomainUpdateRequestXML(
 	extension := domainUpdateExtension(req)
 
 	if !rgpext.ValidUpdate(req.RGP) {
-		return "", nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid RGP update extension",
-		}
+		return "", nil, newValidationError(constants.ResultParameterError, "invalid RGP update extension")
 	}
 
 	if !launchext.ValidUpdate(req.Launch) {
-		return "", nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid launch update extension",
-		}
+		return "", nil, newValidationError(constants.ResultParameterError, "invalid launch update extension")
 	}
 
 	if !secdnsext.ValidUpdate(req.SecDNS) {
-		return "", nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid secDNS update extension",
-		}
+		return "", nil, newValidationError(constants.ResultParameterError, "invalid secDNS update extension")
 	}
 
 	if add == nil &&
@@ -121,10 +109,7 @@ func buildDomainUpdateRequestXML(
 		change == nil &&
 		extension == nil {
 
-		return "", nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "at least one domain update operation is required",
-		}
+		return "", nil, newValidationError(constants.ResultParameterError, "at least one domain update operation is required")
 	}
 
 	request := domainUpdateRequestXML{
@@ -332,16 +317,10 @@ func domainUpdateStatuses(
 	for _, status := range statuses {
 		status = strings.TrimSpace(status)
 		if status == "" {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "domain status is required",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "domain status is required")
 		}
 		if !constants.IsDomainStatus(status) {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "invalid domain status",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "invalid domain status")
 		}
 
 		result = append(result, domainUpdateStatusXML{
@@ -352,16 +331,10 @@ func domainUpdateStatuses(
 	for _, status := range statusInfo {
 		statusValue := strings.TrimSpace(status.Status)
 		if statusValue == "" {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "domain status is required",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "domain status is required")
 		}
 		if !constants.IsDomainStatus(statusValue) {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "invalid domain status",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "invalid domain status")
 		}
 
 		result = append(result, domainUpdateStatusXML{

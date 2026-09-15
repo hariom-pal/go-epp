@@ -8,6 +8,7 @@ import (
 
 // Config contains all settings required to open an EPP session.
 type Config struct {
+	Environment    string `yaml:"environment"`
 	Server         ServerConfig
 	Authentication AuthenticationConfig
 	TLS            TLSConfig
@@ -30,11 +31,19 @@ type AuthenticationConfig struct {
 
 // TLSConfig contains client certificate and trust settings.
 type TLSConfig struct {
-	CertFile           string `yaml:"cert_file"`
-	KeyFile            string `yaml:"key_file"`
-	CAFile             string `yaml:"ca_file"`
-	InsecureSkipVerify bool   `yaml:"insecure_skip_verify"`
-	AllowInsecure      bool   `yaml:"allow_insecure"`
+	CertFile   string `yaml:"cert_file"`
+	KeyFile    string `yaml:"key_file"`
+	CAFile     string `yaml:"ca_file"`
+	ServerName string `yaml:"server_name"`
+
+	// CAOnly restricts trust to CAFile alone. By default the CA file is added
+	// to the host's public roots, so any publicly trusted CA can still vouch
+	// for the registry; a registrar issued a private registry CA usually wants
+	// that CA to be the only one accepted. Requires CAFile.
+	CAOnly bool `yaml:"ca_only"`
+
+	InsecureSkipVerify bool `yaml:"insecure_skip_verify"`
+	AllowInsecure      bool `yaml:"allow_insecure"`
 }
 
 // TimeoutConfig contains timeout settings in seconds.

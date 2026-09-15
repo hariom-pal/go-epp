@@ -1,0 +1,44 @@
+environment: ote
+
+server:
+  host: nixi-ote.example.invalid
+  port: 700
+
+authentication:
+  username: replace-with-uat-client-id
+  password: replace-with-uat-password
+
+tls:
+  cert_file: /secure/local/path/nixi-uat-client.crt
+  key_file: /secure/local/path/nixi-uat-client.key
+  ca_file: /secure/local/path/nixi-uat-ca.pem
+  server_name: nixi-ote.example.invalid
+  # Trust only ca_file, not the host's public roots. Registry chains are
+  # usually signed by a private registry CA, so this is the safer setting.
+  ca_only: true
+  insecure_skip_verify: false
+  allow_insecure: false
+
+timeout:
+  connect: 30
+  read: 30
+  write: 30
+
+transport:
+  max_frame_size: 16777216
+
+login:
+  object_uris:
+    - urn:ietf:params:xml:ns:domain-1.0
+    - urn:ietf:params:xml:ns:contact-1.0
+    - urn:ietf:params:xml:ns:host-1.0
+  require_supported_objects: true
+  # NIXI OT&E advertises these; list only what the server offers, since
+  # require_supported_extensions rejects anything absent from the greeting.
+  extension_uris:
+    - urn:ietf:params:xml:ns:secDNS-1.1
+    - urn:ietf:params:xml:ns:rgp-1.0
+    - urn:ietf:params:xml:ns:idn-1.0
+    - urn:ietf:params:xml:ns:fee-0.7
+    - urn:ietf:params:xml:ns:launch-1.0
+  require_supported_extensions: true

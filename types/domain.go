@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/hariom-pal/go-epp/extensions/fee"
+	idnext "github.com/hariom-pal/go-epp/extensions/idn"
 	"github.com/hariom-pal/go-epp/extensions/launch"
 	"github.com/hariom-pal/go-epp/extensions/rgp"
 	"github.com/hariom-pal/go-epp/extensions/secdns"
@@ -178,7 +179,13 @@ type DomainLaunchInfo struct {
 
 // DomainIDNInfo contains IDN extension data returned for a domain.
 type DomainIDNInfo struct {
+	// Table is the registry language/script table the name was registered
+	// under, such as "hin_deva".
 	Table string
+
+	// UName is the Unicode (U-label) form of the domain name as the registry
+	// stored it.
+	UName string
 }
 
 //
@@ -213,6 +220,8 @@ type DomainCreateRequest struct {
 	Fee *fee.TransformRequest
 
 	SecDNS *secdns.CreateRequest
+
+	IDN *idnext.CreateRequest
 
 	Launch *launch.CreateRequest
 }

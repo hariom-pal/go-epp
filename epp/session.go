@@ -36,15 +36,21 @@ func ConnectContext(ctx context.Context, cfg *config.Config) (*Client, error) {
 		return nil, newSDKError(ErrorKindTLS, "failed to load client certificate", err)
 	}
 
-	// Load system CA pool
-	rootCAs, err := x509.SystemCertPool()
-	if err != nil || rootCAs == nil {
+	// Trust anchors. By default the configured CA is added to the host's
+	// public roots; with CAOnly it replaces them, so only the registry's own
+	// CA can authenticate the registry.
+	var rootCAs *x509.CertPool
+	if cfg.TLS.CAOnly {
 		rootCAs = x509.NewCertPool()
+	} else {
+		systemRoots, err := x509.SystemCertPool()
+		if err != nil || systemRoots == nil {
+			systemRoots = x509.NewCertPool()
+		}
+		rootCAs = systemRoots
 	}
 
-	// Load custom Root CA (optional)
 	if cfg.TLS.CAFile != "" {
-
 		caCert, err := os.ReadFile(cfg.TLS.CAFile)
 		if err != nil {
 			return nil, newSDKError(ErrorKindTLS, "failed to read root CA", err)
@@ -58,7 +64,7 @@ func ConnectContext(ctx context.Context, cfg *config.Config) (*Client, error) {
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{cert},
 		RootCAs:            rootCAs,
-		ServerName:         cfg.Server.Host,
+		ServerName:         tlsServerName(cfg),
 		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: cfg.TLS.InsecureSkipVerify,
 	}
@@ -113,6 +119,13 @@ func validateTLSConfig(cfg *config.Config) error {
 	if cfg.TLS.CertFile == "" || cfg.TLS.KeyFile == "" {
 		return newSDKError(ErrorKindConfiguration, "client certificate and key are required", nil)
 	}
+	if cfg.TLS.CAOnly && cfg.TLS.CAFile == "" {
+		return newSDKError(
+			ErrorKindConfiguration,
+			"ca_only restricts trust to ca_file, so ca_file is required",
+			nil,
+		)
+	}
 	if cfg.TLS.InsecureSkipVerify && !cfg.TLS.AllowInsecure {
 		return newSDKError(
 			ErrorKindConfiguration,
@@ -135,6 +148,16 @@ func maxFrameSize(cfg *config.Config) int {
 		return DefaultMaxFrameSize
 	}
 	return cfg.Transport.MaxFrameSize
+}
+
+func tlsServerName(cfg *config.Config) string {
+	if cfg == nil {
+		return ""
+	}
+	if cfg.TLS.ServerName != "" {
+		return cfg.TLS.ServerName
+	}
+	return cfg.Server.Host
 }
 
 func setContextDeadline(ctx context.Context, setter func(time.Time) error, seconds int) error {

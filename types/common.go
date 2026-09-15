@@ -8,6 +8,12 @@ type Response struct {
 	ResultMsg  string
 	Results    []Result
 
+	// MessageQueue reports the server message queue. RFC 5730 section 2.9.2.3
+	// allows <msgQ> on any response, not just a poll, so a registrar can learn
+	// that messages are waiting from an ordinary command. Count is zero when
+	// the server sent no <msgQ>.
+	MessageQueue MessageQueue
+
 	ClientTRID string
 	ServerTRID string
 }
@@ -17,6 +23,22 @@ type Result struct {
 	Code    int
 	Message string
 	Lang    string
+
+	// Values carries the server diagnostics from <value> and <extValue>
+	// elements. RFC 5730 section 2.6 uses these to identify exactly which
+	// part of a command a server objected to, so they are the most useful
+	// detail available when a command fails.
+	Values []ResultValue
+}
+
+// ResultValue contains one RFC5730 <value> or <extValue> diagnostic.
+type ResultValue struct {
+	// Value is the offending command fragment reported by the server.
+	Value string
+
+	// Reason explains the failure. It is populated from <extValue><reason>,
+	// or from the <msg> some servers nest inside a plain <value>.
+	Reason string
 }
 
 //

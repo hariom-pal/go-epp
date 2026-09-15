@@ -23,10 +23,7 @@ func (c *Client) ContactDeleteContext(
 ) (*types.ContactDeleteResponse, error) {
 	contactID := strings.TrimSpace(req.ContactID)
 	if contactID == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "contact ID is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "contact ID is required")
 	}
 
 	request := contactDeleteRequestXML{

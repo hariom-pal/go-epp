@@ -16,6 +16,18 @@ func (c *Client) Login() error {
 
 // LoginContext sends an EPP login command using the client's configured credentials.
 func (c *Client) LoginContext(ctx context.Context) error {
+	// An empty credential is always a caller mistake, and sending it costs a
+	// round trip to be told so in terms that point at the schema rather than
+	// at the configuration. RFC 5730 also bounds clID and pw lengths, but
+	// registries commonly issue values outside those bounds, so only the
+	// unambiguous case is enforced here.
+	if strings.TrimSpace(c.config.Authentication.Username) == "" {
+		return newValidationError(constants.ResultParameterError, "login client ID is required")
+	}
+	if strings.TrimSpace(c.config.Authentication.Password) == "" {
+		return newValidationError(constants.ResultParameterError, "login password is required")
+	}
+
 	objects, extensions, err := c.loginServices()
 	if err != nil {
 		return err

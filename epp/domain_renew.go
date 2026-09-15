@@ -54,10 +54,7 @@ func buildDomainRenewRequestXML(
 	domain = strings.TrimSuffix(domain, ".")
 
 	if domain == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "domain name is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "domain name is required")
 	}
 
 	ascii, err := idn.ToASCII(domain)
@@ -66,10 +63,7 @@ func buildDomainRenewRequestXML(
 	}
 
 	if req.CurrentExpiryDate.IsZero() {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "current expiry date is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "current expiry date is required")
 	}
 
 	period, err := domainRenewPeriod(req)

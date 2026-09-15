@@ -10,10 +10,18 @@ import (
 
 func main() {
 	options := parseOptions()
+	plan := planOperations(options)
 
 	cfg, err := config.LoadFromFile(options.ConfigPath)
 	if err != nil {
 		log.Fatal(err)
+	}
+	environment, err := validateUATSafety(cfg, options, plan)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if options.UAT {
+		printTargetSummary(cfg, environment, plan)
 	}
 
 	client, err := epp.Connect(cfg)
@@ -21,6 +29,15 @@ func main() {
 		log.Fatal(err)
 	}
 	defer client.Close()
+	capture, err := newCaptureLogger(options.CaptureDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer capture.Close()
+	if capture != nil {
+		client.SetLogger(capture)
+		capture.EPPEvent(epp.Event{Type: epp.EventConnect})
+	}
 
 	fmt.Println("======================================")
 	fmt.Println("TLS Connected Successfully")
@@ -29,9 +46,15 @@ func main() {
 	fmt.Println("========== SERVER GREETING ==========")
 	fmt.Println(string(client.Greeting()))
 	fmt.Println("=====================================")
+	if options.ConnectOnly {
+		return
+	}
 
 	if err := runHello(client, options.Hello); err != nil {
 		log.Fatal(err)
+	}
+	if options.Hello && !needsLogin(options) {
+		return
 	}
 
 	// --------------------------------------------------
@@ -43,6 +66,13 @@ func main() {
 	}
 
 	fmt.Println("Login Successful")
+	if options.LoginOnly {
+		if err := client.Logout(); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Logout Successful")
+		return
+	}
 
 	if err := runPoll(client, options); err != nil {
 		log.Fatal(err)
@@ -92,6 +122,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := runContactTransfer(client, options); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runDomainCreate(client, options); err != nil {
 		log.Fatal(err)
 	}
@@ -125,4 +159,28 @@ func main() {
 	}
 
 	fmt.Println("Logout Successful")
+}
+
+func needsLogin(options cliOptions) bool {
+	return options.LoginOnly ||
+		options.Poll ||
+		options.PollAckID != "" ||
+		options.CheckDomains != "" ||
+		len(options.HostCheckNames) > 0 ||
+		options.HostInfoName != "" ||
+		options.HostCreateName != "" ||
+		options.HostUpdateName != "" ||
+		options.HostDeleteName != "" ||
+		len(options.ContactCheckIDs) > 0 ||
+		options.ContactInfoID != "" ||
+		options.ContactCreateID != "" ||
+		options.ContactUpdateID != "" ||
+		options.ContactDeleteID != "" ||
+		options.ContactTransferID != "" ||
+		options.CreateDomain != "" ||
+		options.DomainUpdateName != "" ||
+		options.DomainRenewName != "" ||
+		options.DomainTransferName != "" ||
+		options.DomainDeleteName != "" ||
+		options.InfoDomain != ""
 }

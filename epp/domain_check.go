@@ -24,10 +24,7 @@ func (c *Client) DomainCheckContext(
 	req types.DomainCheckRequest,
 ) (*types.DomainCheckResponse, error) {
 	if len(req.Domains) == 0 {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "at least one domain is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "at least one domain is required")
 	}
 
 	names := make([]string, 0, len(req.Domains))
@@ -50,10 +47,7 @@ func (c *Client) DomainCheckContext(
 	}
 
 	if len(names) == 0 {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "no valid domain supplied",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "no valid domain supplied")
 	}
 
 	request := domainCheckRequestXML{

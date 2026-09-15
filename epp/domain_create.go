@@ -8,6 +8,7 @@ import (
 
 	"github.com/hariom-pal/go-epp/constants"
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	idnext "github.com/hariom-pal/go-epp/extensions/idn"
 	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 	"github.com/hariom-pal/go-epp/pkg/idn"
@@ -58,10 +59,7 @@ func buildDomainCreateRequestXML(
 	domain = strings.TrimSuffix(domain, ".")
 
 	if domain == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "domain is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "domain is required")
 	}
 
 	ascii, err := idn.ToASCII(domain)
@@ -76,18 +74,12 @@ func buildDomainCreateRequestXML(
 
 	registrant := strings.TrimSpace(req.Registrant)
 	if registrant == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "registrant contact is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "registrant contact is required")
 	}
 
 	authInfo := strings.TrimSpace(req.AuthInfo)
 	if authInfo == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "authInfo is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "authInfo is required")
 	}
 
 	contacts, err := domainCreateContacts(req)
@@ -101,17 +93,15 @@ func buildDomainCreateRequestXML(
 	}
 
 	if !secdnsext.ValidCreate(req.SecDNS) {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid secDNS create extension",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "invalid secDNS create extension")
+	}
+
+	if !idnext.ValidCreate(req.IDN) {
+		return nil, newValidationError(constants.ResultParameterError, "invalid idn create extension: table is required")
 	}
 
 	if !launchext.ValidCreate(req.Launch) {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid launch create extension",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "invalid launch create extension")
 	}
 
 	request := domainCreateRequestXML{
@@ -164,10 +154,12 @@ func domainCreateExtension(
 
 	extension.SecDNSCreate = secdnsext.NewCreate(req.SecDNS)
 	extension.LaunchCreate = launchext.NewCreate(req.Launch)
+	extension.IDNData = idnext.NewCreate(req.IDN)
 
 	if extension.FeeCreate == nil &&
 		extension.LaunchCreate == nil &&
-		extension.SecDNSCreate == nil {
+		extension.SecDNSCreate == nil &&
+		extension.IDNData == nil {
 
 		return nil
 	}
@@ -297,10 +289,7 @@ func domainCreateContact(
 	}
 
 	if contactType == "" || id == "" {
-		return domainCreateContactXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "contact type and id are required",
-		}
+		return domainCreateContactXML{}, newValidationError(constants.ResultParameterError, "contact type and id are required")
 	}
 
 	return domainCreateContactXML{
@@ -346,10 +335,7 @@ func domainCreateNameServers(
 		for _, addr := range host.Addresses {
 			ip := strings.TrimSpace(addr.IP)
 			if ip == "" {
-				return nil, &Error{
-					Code:    constants.ResultParameterError,
-					Message: "host address is required",
-				}
+				return nil, newValidationError(constants.ResultParameterError, "host address is required")
 			}
 
 			version := strings.TrimSpace(addr.Version)
@@ -357,32 +343,20 @@ func domainCreateNameServers(
 				version != "v4" &&
 				version != "v6" {
 
-				return nil, &Error{
-					Code:    constants.ResultParameterError,
-					Message: "host address version must be v4 or v6",
-				}
+				return nil, newValidationError(constants.ResultParameterError, "host address version must be v4 or v6")
 			}
 
 			parsedIP := net.ParseIP(ip)
 			if parsedIP == nil {
-				return nil, &Error{
-					Code:    constants.ResultParameterError,
-					Message: "host address must be a valid IP address",
-				}
+				return nil, newValidationError(constants.ResultParameterError, "host address must be a valid IP address")
 			}
 
 			if version == "v4" && parsedIP.To4() == nil {
-				return nil, &Error{
-					Code:    constants.ResultParameterError,
-					Message: "host address must be a valid IPv4 address",
-				}
+				return nil, newValidationError(constants.ResultParameterError, "host address must be a valid IPv4 address")
 			}
 
 			if version == "v6" && parsedIP.To4() != nil {
-				return nil, &Error{
-					Code:    constants.ResultParameterError,
-					Message: "host address must be a valid IPv6 address",
-				}
+				return nil, newValidationError(constants.ResultParameterError, "host address must be a valid IPv6 address")
 			}
 
 			hostAttr.HostAddrs = append(hostAttr.HostAddrs, domainCreateHostAddrXML{
@@ -405,10 +379,7 @@ func domainCreateHostName(
 	host = strings.TrimSuffix(host, ".")
 
 	if host == "" {
-		return "", &Error{
-			Code:    constants.ResultParameterError,
-			Message: "name server host name is required",
-		}
+		return "", newValidationError(constants.ResultParameterError, "name server host name is required")
 	}
 
 	return idn.ToASCII(host)

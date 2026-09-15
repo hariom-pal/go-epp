@@ -85,18 +85,12 @@ func pollRequestValues(
 	case constants.PollAcknowledge:
 		messageID := strings.TrimSpace(req.MessageID)
 		if messageID == "" {
-			return "", "", &Error{
-				Code:    constants.ResultParameterError,
-				Message: "message ID is required for poll ack",
-			}
+			return "", "", newValidationError(constants.ResultParameterError, "message ID is required for poll ack")
 		}
 
 		return constants.PollAcknowledge, messageID, nil
 	default:
-		return "", "", &Error{
-			Code:    constants.ResultParameterError,
-			Message: "poll operation must be request or ack",
-		}
+		return "", "", newValidationError(constants.ResultParameterError, "poll operation must be request or ack")
 	}
 }
 

@@ -22,10 +22,7 @@ func (c *Client) ContactCheckContext(
 	req types.ContactCheckRequest,
 ) (*types.ContactCheckResponse, error) {
 	if len(req.IDs) == 0 {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "at least one contact ID is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "at least one contact ID is required")
 	}
 
 	ids := make([]string, 0, len(req.IDs))
@@ -39,10 +36,7 @@ func (c *Client) ContactCheckContext(
 	}
 
 	if len(ids) == 0 {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "no valid contact ID supplied",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "no valid contact ID supplied")
 	}
 
 	request := contactCheckRequestXML{

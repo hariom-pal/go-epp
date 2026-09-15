@@ -51,10 +51,7 @@ func buildDomainDeleteRequestXML(
 	domain = strings.TrimSuffix(domain, ".")
 
 	if domain == "" {
-		return "", nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "domain name is required",
-		}
+		return "", nil, newValidationError(constants.ResultParameterError, "domain name is required")
 	}
 
 	ascii, err := idn.ToASCII(domain)
@@ -63,10 +60,7 @@ func buildDomainDeleteRequestXML(
 	}
 
 	if !launchext.ValidDelete(req.Launch) {
-		return "", nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid launch delete extension",
-		}
+		return "", nil, newValidationError(constants.ResultParameterError, "invalid launch delete extension")
 	}
 
 	request := domainDeleteRequestXML{

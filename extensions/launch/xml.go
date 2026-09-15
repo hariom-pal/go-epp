@@ -3,13 +3,18 @@ package launch
 import "encoding/xml"
 
 // CreateXML contains RFC8334 launch create extension XML.
+//
+// ChoiceXML and CodeMarkXML.MarkXML carry already-formed XML verbatim. They
+// must stay string typed: encoding/xml honours the ",innerxml" flag when
+// marshalling only for string and []byte fields, and silently emits any other
+// type as an ordinary element named after the Go field.
 type CreateXML struct {
 	XMLNS     string      `xml:"xmlns:launch,attr"`
 	XMLNSSMD  string      `xml:"xmlns:smd,attr,omitempty"`
 	XMLNSMark string      `xml:"xmlns:mark,attr,omitempty"`
 	Type      string      `xml:"type,attr,omitempty"`
 	Phase     PhaseXML    `xml:"launch:phase"`
-	ChoiceXML RawXML      `xml:",innerxml"`
+	ChoiceXML string      `xml:",innerxml"`
 	Notices   []NoticeXML `xml:"launch:notice,omitempty"`
 }
 
@@ -45,7 +50,7 @@ type PhaseXML struct {
 type CodeMarkXML struct {
 	XMLName xml.Name `xml:"launch:codeMark"`
 	Code    *CodeXML `xml:"launch:code,omitempty"`
-	MarkXML RawXML   `xml:",innerxml"`
+	MarkXML string   `xml:",innerxml"`
 }
 
 // CodeXML contains a launch code.
@@ -89,9 +94,4 @@ type StatusXML struct {
 	Name   string `xml:"name,attr,omitempty"`
 	Lang   string `xml:"lang,attr,omitempty"`
 	Text   string `xml:",chardata"`
-}
-
-// RawXML carries already-formed XML for schema-extension content.
-type RawXML struct {
-	Value string `xml:",innerxml"`
 }

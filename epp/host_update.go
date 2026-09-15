@@ -47,10 +47,7 @@ func buildHostUpdateRequestXML(
 	host = strings.TrimSuffix(host, ".")
 
 	if host == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "host name is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "host name is required")
 	}
 
 	ascii, err := idn.ToASCII(host)
@@ -77,10 +74,7 @@ func buildHostUpdateRequestXML(
 		remove == nil &&
 		change == nil {
 
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "at least one host update operation is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "at least one host update operation is required")
 	}
 
 	request := hostUpdateRequestXML{
@@ -164,16 +158,10 @@ func hostUpdateList(
 	for _, status := range statuses {
 		status = strings.TrimSpace(status)
 		if status == "" {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "host status is required",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "host status is required")
 		}
 		if !constants.IsHostStatus(status) {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "invalid host status",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "invalid host status")
 		}
 
 		result.Statuses = append(result.Statuses, hostUpdateStatusXML{

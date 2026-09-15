@@ -14,15 +14,18 @@ func domainPeriod(
 ) (types.Period, error) {
 
 	unit = strings.ToLower(strings.TrimSpace(unit))
-	if value == 0 && unit == "" && !required {
+
+	// A unit on its own carries no meaning, so an optional period is absent
+	// whenever no value was supplied. Requiring the unit to be empty too
+	// would reject callers that simply default it, which is the normal way
+	// to expose "y" as a default in a command line or API surface, and would
+	// make optional-period commands such as transfer query unusable.
+	if value == 0 && !required {
 		return types.Period{}, nil
 	}
 
 	if value < 1 || value > domainCreateMaxPeriod {
-		return types.Period{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "period must be between 1 and 99",
-		}
+		return types.Period{}, newValidationError(constants.ResultParameterError, "period must be between 1 and 99")
 	}
 
 	if unit == "" {
@@ -32,10 +35,7 @@ func domainPeriod(
 	if unit != domainCreatePeriodUnitYears &&
 		unit != domainCreatePeriodUnitMonths {
 
-		return types.Period{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "period unit must be y or m",
-		}
+		return types.Period{}, newValidationError(constants.ResultParameterError, "period unit must be y or m")
 	}
 
 	return types.Period{

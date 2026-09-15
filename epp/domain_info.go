@@ -31,10 +31,7 @@ func (c *Client) DomainInfoContext(
 	domain = strings.TrimSuffix(domain, ".")
 
 	if domain == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "domain is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "domain is required")
 	}
 
 	ascii, err := idn.ToASCII(domain)
@@ -48,17 +45,11 @@ func (c *Client) DomainInfoContext(
 	}
 
 	if !constants.IsHostsValue(hosts) {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid hosts value",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "invalid hosts value")
 	}
 
 	if !launchext.ValidInfo(req.Launch) {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "invalid launch info extension",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "invalid launch info extension")
 	}
 
 	request := domainInfoRequestXML{
@@ -113,7 +104,10 @@ func (c *Client) DomainInfoContext(
 	secDNSInfo := secdnsext.InfoDataFromXML(response.Response.Extension.SecDNSInfoData)
 	feeInfo := feeext.InfoDataFromXML(response.Response.Extension.FeeInfoData)
 	launchInfo := launchext.InfoDataFromXML(response.Response.Extension.LaunchInfoData)
-	idnInfo := response.Response.Extension.IDNInfoData
+	idnInfo := response.Response.Extension.IDNData
+	if strings.TrimSpace(idnInfo.Table) == "" && strings.TrimSpace(idnInfo.UName) == "" {
+		idnInfo = response.Response.Extension.IDNInfData
+	}
 
 	unicode, err := idn.ToUnicode(info.Name)
 	if err != nil {
@@ -155,6 +149,7 @@ func (c *Client) DomainInfoContext(
 			LaunchData: launchInfo,
 			IDN: types.DomainIDNInfo{
 				Table: strings.TrimSpace(idnInfo.Table),
+				UName: strings.TrimSpace(idnInfo.UName),
 			},
 
 			Statuses:       make([]string, 0, len(info.Statuses)),

@@ -24,10 +24,7 @@ func (c *Client) ContactInfoContext(
 ) (*types.ContactInfoResponse, error) {
 	contactID := strings.TrimSpace(req.ContactID)
 	if contactID == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "contact ID is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "contact ID is required")
 	}
 
 	request := contactInfoRequestXML{

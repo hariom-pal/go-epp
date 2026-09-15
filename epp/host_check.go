@@ -23,10 +23,7 @@ func (c *Client) HostCheckContext(
 	req types.HostCheckRequest,
 ) (*types.HostCheckResponse, error) {
 	if len(req.Hosts) == 0 {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "at least one host name is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "at least one host name is required")
 	}
 
 	names := make([]string, 0, len(req.Hosts))
@@ -48,10 +45,7 @@ func (c *Client) HostCheckContext(
 	}
 
 	if len(names) == 0 {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "no valid host name supplied",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "no valid host name supplied")
 	}
 
 	request := hostCheckRequestXML{

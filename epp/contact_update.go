@@ -44,10 +44,7 @@ func buildContactUpdateRequestXML(
 
 	contactID := strings.TrimSpace(req.ContactID)
 	if contactID == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "contact ID is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "contact ID is required")
 	}
 
 	add, err := contactUpdateStatuses(req.AddStatuses)
@@ -69,10 +66,7 @@ func buildContactUpdateRequestXML(
 		remove == nil &&
 		change == nil {
 
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "at least one contact update operation is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "at least one contact update operation is required")
 	}
 
 	request := contactUpdateRequestXML{
@@ -143,16 +137,10 @@ func contactUpdateStatuses(
 	for _, value := range values {
 		value = strings.TrimSpace(value)
 		if value == "" {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "contact status is required",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "contact status is required")
 		}
 		if !constants.IsContactStatus(value) {
-			return nil, &Error{
-				Code:    constants.ResultParameterError,
-				Message: "invalid contact status",
-			}
+			return nil, newValidationError(constants.ResultParameterError, "invalid contact status")
 		}
 		result.Statuses = append(result.Statuses, contactUpdateStatusXML{
 			Status: value,

@@ -134,10 +134,14 @@ func TestNewClientDoesNotFallbackToPlainTCP(t *testing.T) {
 	}
 	defer listener.Close()
 
+	plainAddr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
+		t.Fatalf("expected TCP listener address, got %T", listener.Addr())
+	}
 	cfg := &config.Config{
 		Server: config.ServerConfig{
 			Host: "127.0.0.1",
-			Port: listener.Addr().(*net.TCPAddr).Port,
+			Port: plainAddr.Port,
 		},
 	}
 
@@ -659,7 +663,10 @@ func startSequentialEPPServerWithHandler(
 		handler(conn, requests)
 	}()
 
-	addr := listener.Addr().(*net.TCPAddr)
+	addr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
+		t.Fatalf("expected TCP listener address, got %T", listener.Addr())
+	}
 	cfg := &config.Config{
 		Server: config.ServerConfig{Host: "127.0.0.1", Port: addr.Port},
 		TLS: config.TLSConfig{

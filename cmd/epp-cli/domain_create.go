@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hariom-pal/go-epp/epp"
+	idnext "github.com/hariom-pal/go-epp/extensions/idn"
 	"github.com/hariom-pal/go-epp/types"
 )
 
@@ -18,8 +19,25 @@ func runDomainCreate(
 		return nil
 	}
 
+	var idnData *idnext.CreateRequest
+	if strings.TrimSpace(options.CreateIDNTable) != "" {
+		// The registry needs the U-label; default it to whatever the caller
+		// typed so an IDN create works without repeating the name.
+		uname := strings.TrimSpace(options.CreateIDNUName)
+		if uname == "" {
+			uname = strings.TrimSpace(options.CreateDomain)
+		}
+		idnData = &idnext.CreateRequest{
+			Data: idnext.Data{
+				Table: strings.TrimSpace(options.CreateIDNTable),
+				UName: uname,
+			},
+		}
+	}
+
 	resp, err := client.DomainCreate(types.DomainCreateRequest{
 		Domain:          options.CreateDomain,
+		IDN:             idnData,
 		Period:          options.CreatePeriod,
 		Unit:            options.CreateUnit,
 		Registrant:      options.CreateRegistrant,

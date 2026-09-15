@@ -1,3 +1,5 @@
+environment: ote
+
 server:
   host: ote.example.registry
   port: 700
@@ -10,6 +12,10 @@ tls:
   cert_file: certs/client.crt
   key_file: certs/client.key
   ca_file: certs/ca.crt
+  server_name: ote.example.registry
+  # Trust only ca_file, not the host's public roots. Registry chains are
+  # usually signed by a private registry CA, so this is the safer setting.
+  ca_only: true
   insecure_skip_verify: false
   allow_insecure: false
 

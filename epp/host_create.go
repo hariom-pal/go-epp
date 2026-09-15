@@ -53,10 +53,7 @@ func buildHostCreateRequestXML(
 	host = strings.TrimSuffix(host, ".")
 
 	if host == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "host name is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "host name is required")
 	}
 
 	ascii, err := idn.ToASCII(host)
@@ -162,33 +159,21 @@ func hostCreateAddress(
 	if ipVersion != hostAddressIPv4 &&
 		ipVersion != hostAddressIPv6 {
 
-		return hostCreateAddressXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "host address IP version must be v4 or v6",
-		}
+		return hostCreateAddressXML{}, newValidationError(constants.ResultParameterError, "host address IP version must be v4 or v6")
 	}
 
 	ipAddress := strings.TrimSpace(address.Address)
 	parsedIP := net.ParseIP(ipAddress)
 	if parsedIP == nil {
-		return hostCreateAddressXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "host address must be a valid IP address",
-		}
+		return hostCreateAddressXML{}, newValidationError(constants.ResultParameterError, "host address must be a valid IP address")
 	}
 
 	if ipVersion == hostAddressIPv4 && parsedIP.To4() == nil {
-		return hostCreateAddressXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "host address must be a valid IPv4 address",
-		}
+		return hostCreateAddressXML{}, newValidationError(constants.ResultParameterError, "host address must be a valid IPv4 address")
 	}
 
 	if ipVersion == hostAddressIPv6 && parsedIP.To4() != nil {
-		return hostCreateAddressXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "host address must be a valid IPv6 address",
-		}
+		return hostCreateAddressXML{}, newValidationError(constants.ResultParameterError, "host address must be a valid IPv6 address")
 	}
 
 	return hostCreateAddressXML{

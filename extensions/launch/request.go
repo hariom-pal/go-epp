@@ -60,7 +60,7 @@ func NewCreate(req *CreateRequest) *CreateXML {
 		XMLNSMark: namespaceIf(hasMarkXML(req.CodeMarks), markNamespace),
 		Type:      strings.TrimSpace(req.Type),
 		Phase:     phaseXML(req.Phase),
-		ChoiceXML: RawXML{Value: createChoiceXML(req)},
+		ChoiceXML: createChoiceXML(req),
 		Notices:   noticeXMLs(req.Notices),
 	}
 }
@@ -125,7 +125,7 @@ func createChoiceXML(req *CreateRequest) string {
 
 	for _, codeMark := range req.CodeMarks {
 		value := codeMarkXML(codeMark)
-		if value.Code == nil && strings.TrimSpace(value.MarkXML.Value) == "" {
+		if value.Code == nil && strings.TrimSpace(value.MarkXML) == "" {
 			continue
 		}
 
@@ -149,7 +149,7 @@ func createChoiceXML(req *CreateRequest) string {
 func codeMarkXML(value CodeMark) CodeMarkXML {
 	return CodeMarkXML{
 		Code:    codeXML(value.Code),
-		MarkXML: RawXML{Value: strings.TrimSpace(value.MarkXML)},
+		MarkXML: strings.TrimSpace(value.MarkXML),
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 
 	feeext "github.com/hariom-pal/go-epp/extensions/fee"
+	idnext "github.com/hariom-pal/go-epp/extensions/idn"
 	launchext "github.com/hariom-pal/go-epp/extensions/launch"
 	secdnsext "github.com/hariom-pal/go-epp/extensions/secdns"
 )
@@ -31,6 +32,7 @@ type domainCreateExtensionXML struct {
 	FeeCreate    *feeext.TransformXML `xml:"fee:create,omitempty"`
 	LaunchCreate *launchext.CreateXML `xml:"launch:create,omitempty"`
 	SecDNSCreate *secdnsext.CreateXML `xml:"secDNS:create,omitempty"`
+	IDNData      *idnext.DataXML      `xml:"idn:data,omitempty"`
 }
 
 type domainCreateXML struct {

@@ -21,6 +21,10 @@ type Client struct {
 	closed       bool
 	loggedIn     bool
 	logger       Logger
+
+	// nonce is this client's random component for client transaction
+	// identifiers, generated lazily under stateMu.
+	nonce string
 }
 
 // NewClient creates a new EPP client connection.

@@ -26,10 +26,7 @@ func (c *Client) HostDeleteContext(
 	host = strings.TrimSuffix(host, ".")
 
 	if host == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "host name is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "host name is required")
 	}
 
 	ascii, err := idn.ToASCII(host)

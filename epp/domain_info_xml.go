@@ -116,9 +116,17 @@ type domainInfoResponseXML struct {
 
 			LaunchInfoData launchext.InfoDataXML `xml:"urn:ietf:params:xml:ns:launch-1.0 infData"`
 
-			IDNInfoData struct {
-				Table string `xml:"table"`
-			} `xml:"urn:ietf:params:xml:ns:idn-1.0 infData"`
+			// The idn-1.0 mapping is carried as <idn:data> by most registries
+			// and as <idn:infData> by others. Both spellings are parsed so the
+			// table and U-label are never silently dropped.
+			IDNData    idnInfoXML `xml:"urn:ietf:params:xml:ns:idn-1.0 data"`
+			IDNInfData idnInfoXML `xml:"urn:ietf:params:xml:ns:idn-1.0 infData"`
 		} `xml:"extension"`
 	} `xml:"response"`
+}
+
+// idnInfoXML contains idn-1.0 response data for a domain.
+type idnInfoXML struct {
+	Table string `xml:"table"`
+	UName string `xml:"uname"`
 }

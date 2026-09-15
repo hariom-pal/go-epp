@@ -44,10 +44,7 @@ func buildContactCreateRequestXML(
 
 	contactID := strings.TrimSpace(req.ContactID)
 	if contactID == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "contact ID is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "contact ID is required")
 	}
 
 	postalInfo, err := contactCreatePostalInfo(req)
@@ -67,18 +64,12 @@ func buildContactCreateRequestXML(
 
 	email := strings.TrimSpace(req.Email)
 	if email == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "email is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "email is required")
 	}
 
 	authInfo := strings.TrimSpace(req.AuthInfo)
 	if authInfo == "" {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "authInfo is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "authInfo is required")
 	}
 
 	request := contactCreateRequestXML{
@@ -171,10 +162,7 @@ func contactCreatePostalInfo(
 	}
 
 	if len(postalInfo) == 0 {
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "at least one postalInfo is required",
-		}
+		return nil, newValidationError(constants.ResultParameterError, "at least one postalInfo is required")
 	}
 
 	return postalInfo, nil
@@ -187,26 +175,17 @@ func contactCreatePostalInfoXMLFromTypes(
 
 	name := strings.TrimSpace(info.Name)
 	if name == "" {
-		return contactCreatePostalInfoXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "postalInfo name is required",
-		}
+		return contactCreatePostalInfoXML{}, newValidationError(constants.ResultParameterError, "postalInfo name is required")
 	}
 
 	city := strings.TrimSpace(info.City)
 	if city == "" {
-		return contactCreatePostalInfoXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "postalInfo city is required",
-		}
+		return contactCreatePostalInfoXML{}, newValidationError(constants.ResultParameterError, "postalInfo city is required")
 	}
 
 	countryCode := strings.TrimSpace(info.CountryCode)
 	if countryCode == "" {
-		return contactCreatePostalInfoXML{}, &Error{
-			Code:    constants.ResultParameterError,
-			Message: "postalInfo country code is required",
-		}
+		return contactCreatePostalInfoXML{}, newValidationError(constants.ResultParameterError, "postalInfo country code is required")
 	}
 
 	return contactCreatePostalInfoXML{
@@ -235,10 +214,7 @@ func contactCreatePhone(
 			return nil, nil
 		}
 
-		return nil, &Error{
-			Code:    constants.ResultParameterError,
-			Message: requiredMessage,
-		}
+		return nil, newValidationError(constants.ResultParameterError, requiredMessage)
 	}
 
 	return &contactCreatePhoneXML{
